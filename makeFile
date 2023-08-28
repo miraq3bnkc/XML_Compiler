@@ -1,0 +1,3 @@
+﻿bison -d bisonFile.y 
+flex flexFile.l
+gcc -o run flexFile.yy.c bisonFile.tab.c –lfl./run testfile.txt
