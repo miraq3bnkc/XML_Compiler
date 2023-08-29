@@ -1,88 +1,68 @@
 %{
-#include "lexer.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#include <string.h>
+#include "tokens.h" //we will delete it with bison later
 
-int lineno = 1;             /* Μπορείτε εναλλακτικά να βασιστείτε στην ενσωματωμένη μεταβλητή του Flex 'yylineno' προσθέτοντας παρακάτω την επιλογή '%option yylineno' 
-                               Εμείς θα χρησιμοποιήσουμε το yylineno στην επόμενη διάλεξη, άρα θα σβήσουμε το lineno */
-
+void t_print(int token_id);
 %}
 
-%option case-insensitive
+/* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
 %option yylineno
-%option noyywrap
 
+%x VALUE
+%x COMMENT
 
 LETTER      [a-zA-Z]
-DIGIT       [0-9]
-CHARACTER   {LETTER}|{DIGIT}
-NZNUMBER    [1-9]{DIGIT}*|0
-
-ID          _?{LETTER}({LETTER}|{DIGIT}|_)*
-ICONST      {NZNUMBER}
-FCONST      {NZNUMBER}\.{DIGIT}*
-CCONST      \'.\'
+INT         [1-9][0-9]*|0
+STRING      .*
 WHITESPACE  [ \t]
-
-/*
-    ΠΡΙΝ ΠΡΟΧΩΡΗΣΟΥΜΕ:
-
-    Η μεταβλητή 'yytext' είναι ενσωματωμένη μεταβλητή τύπου char* του Flex στην οποία αποθηκεύεται κάθε φορά η τελευταία λέξη που διάβασε-εντόπισε.
-    Ακόμη και αν εντοπιστεί ο ακέραιος αριθμός 101, θα αποθηκευτεί σε αυτή ως string και όχι ως ακέραιος. Αργότερα θα χρησιμοποιήσουμε τη συνάρτηση
-    'atoi' για μετατροπή ενός string σε ακέραιο αριθμό. Παρακάτω χρησιμοποιήσουμε κάποιες φορές την μεταβλητή 'yytext' ως παράμετρο στη printf.
-
-    Τον τελεστή SIZEOP ('sizeof') τον προσθέσαμε ΠΑΝΩ από την κανονική έκφραση των αναγνωριστικών (ID), ξεχωριστά από τους υπόλοιπους τελεστές,
-    για να μην τον αναγνωρίζει ως αναγνωριστικό.
-
-    Το σύμβολο EOF (End Of File) είναι η μοναδική εξαίρεση της δεύτερης ενότητας για το οποίο δε γράφουμε κάποια κανονική έκφραση, αλλά χρησιμοποιούμε το <<EOF>>.
-*/
 
 %%
 
-"char"              { printf("\nKEYWORD -> char\n"); return T_CHAR; }
-"int"               { printf("\nKEYWORD -> int\n"); return T_INT; }
-"float"             { printf("\nKEYWORD -> float\n"); return T_FLOAT; }
-"void"              { printf("\nKEYWORD -> void\n"); return T_VOID; }
-"if"                { printf("\nKEYWORD -> if\n"); return T_IF; }
-"else"              { printf("\nKEYWORD -> else\n"); return T_ELSE; }
-"while"             { printf("\nKEYWORD -> while\n"); return T_WHILE; }
-"return"            { printf("\nKEYWORD -> return\n"); return T_RETURN; }
-"main"              { printf("\nKEYWORD -> main\n"); return T_MAIN; }
+"LinearLayout"          { t_print(LAYOUT_1); return LAYOUT_1; }
+"RelativeLayout"        { t_print(LAYOUT_2); return LAYOUT_2; }
+"RadioGroup"            { t_print(RGROUP); return RGROUP; }
+"TextView"              { t_print(TEXTVIEW); return TEXTVIEW; }
+"ImageView"             { t_print(IMAGEVIEW); return IMAGEVIEW; }
+"Button"                { t_print(BUTTON); return BUTTON; }
+"RadioButton"           { t_print(RBUTTON); return RBUTTON; }
+"ProgressBar"           { t_print(PROGRESSBAR); return PROGRESSBAR; }
 
-"sizeof"            { printf("\nSIZEOP\n"); return T_SIZEOP; }
+"android:"              { t_print(ANDROIDTAG); return ANDROIDTAG; }
+"layout_width"          { t_print(WIDTH); return WIDTH; }
+"layout_height"         { t_print(HEIGHT); return HEIGHT; }
+"id"                    { t_print(ID); return ID;}
+"orientation"           { t_print(ORIENTATION); return ORIENTATION; }
+"text"                  { t_print(TEXT); return TEXT; }
+"textColor"             { t_print(TEXTCOLOR); return TEXTCOLOR; }
+"src"                   { t_print(SOURCE); return SOURCE; }
+"padding"               { t_print(PADDING); return PADDING; }
+"checkedButton"         { t_print(CHECK_B); return CHECK_B; }
+"max"                   { t_print(MAX); return MAX; }
+"progress"              { t_print(PROGRESS); return PROGRESS; }
 
-{ID}                { printf("\nID -> %s\n", yytext); return T_ID; }
-{ICONST}            { printf("\nICONST -> %s\n", yytext); return T_ICONST; }
-{FCONST}            { printf("\nFCONST -> %s\n", yytext); return T_FCONST; }
-{CCONST}            { printf("\nCCONST -> %s\n", yytext); return T_CCONST; }
+\"                      {BEGIN(VALUE);}
+<VALUE>\"               {BEGIN(INITIAL); printf("\nString was here!\n"); return ST_VALUE;}
+<VALUE>{INT}            {t_print(INT); return INT;}
+<VALUE><<EOF>>          {printf("You've reached the end of file, without closing a string value!\n");}
 
-"||"                { printf("\nOROP\n"); return T_OROP; }
-"&&"                { printf("\nANDOP\n"); return T_ANDOP; }
-"=="|"!="           { printf("\nEQUOP -> %s\n", yytext); return T_EQUOP; }
-">"|">="|"<"|"<="   { printf("\nRELOP -> %s\n", yytext); return T_RELOP; }
-"+"|"-"             { printf("\nADDOP -> %s\n", yytext); return T_ADDOP; }
-"*"|"/"|"%"         { printf("\nMULOP -> %s\n", yytext); return T_MULOP; }
-"!"                 { printf("\nNOTOP\n"); return T_NOTOP; }
-"++"|"--"           { printf("\nINCDEC -> %s\n", yytext); return T_INCDEC; }
+"<!--"                  {BEGIN(COMMENT);}
+<COMMENT>"-->"          {BEGIN(INITIAL); printf("\n\nComment was here!\n\n"); return T_COMMENT;}
+<COMMENT>^(--)          {/*κάπως θα έπρεπε να βγάζει ερρορ*/ }
+<COMMENT><<EOF>>          {printf("You've reached the end of file, without closing the comment!\n");}
 
-"("                 { printf("\nLPAREN\n"); return T_LPAREN; }
-")"                 { printf("\nRPAREN\n"); return T_RPAREN; }
-";"                 { printf("\nSEMI\n"); return T_SEMI; }
-","                 { printf("\nCOMMA\n"); return T_COMMA; }
-"="                 { printf("\nASSIGN\n"); return T_ASSIGN; }
-"["                 { printf("\nLBRACK\n"); return T_LBRACK; }
-"]"                 { printf("\nRBRACK\n"); return T_RBRACK; }
-"&"                 { printf("\nREFER\n"); return T_REFER; }
-"{"                 { printf("\nLBRACE\n"); return T_LBRACE; }
-"}"                 { printf("\nRBRACE\n"); return T_RBRACE; }
+"<"                     { t_print(START_TAG); return START_TAG; }
+"/>"                    { t_print(SMALL_CLOSETAG); return SMALL_CLOSETAG; }
+">"                     { t_print(ENDTAG); return ENDTAG; }
+"</"                    { t_print(CLOSETAG); return CLOSETAG; }
+"="                     { t_print(ASSIGN); return ASSIGN; }
 
 {WHITESPACE}        { /* Κενά (space) μέσα στο αρχείο - απλά τα αγνοούμε */ }
-\n                  { lineno++; /* Εναλλακτικά βασιζόμαστε στο Flex να αυξήσει την μεταβλητή 'yylineno' κατά 1 ΑΥΤΟΜΑΤΑ */ }
-<<EOF>>             { printf("\nEOF\n"); return T_EOF; }
-.                   { error_count++; printf("\nUnrecognised character at line %d!\n", yylineno); }
+\n                  { /*το ιδιο με το whitespace*/}
+\r\n                {/*αλλαγή γραμμής για windows*/}
+
+.                   { printf("Unrecognised character at line %d!\n", yylineno); }
+<<EOF>>             { return T_EOF;}
 
 %%
 
@@ -100,7 +80,23 @@ int main(int argc, char* argv[]) {
 
     do { // Μέχρι να φτάσουμε στο EOF διαβάζουμε κάθε Token μέσα απο το αρχείο.
         token = yylex();
-    } while (token != T_EOF);
+    } while (token != 0);
 
     return 0;
 }
+
+void t_print(int token_id){
+    printf("Found %s (%d) at line %d\n",yytext,token_id,yylineno);
+}
+
+//η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη
+//αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
+
+/*
+Τρεχω αυτό το αρχείο με τις ακόλουθες εντολές:
+
+flex lexertest.l
+gcc lex.yy.c -lfl
+./a.out testfile1.xml
+
+*/
