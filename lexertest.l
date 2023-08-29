@@ -4,6 +4,7 @@
 #include "tokens.h" //we will delete it with bison later
 
 void t_print(int token_id);
+void yyerror(const char* err);
 %}
 
 /* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
@@ -44,12 +45,12 @@ WHITESPACE  [ \t]
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); printf("\nString was here!\n"); return ST_VALUE;}
 <VALUE>{INT}            {t_print(INT); return INT;}
-<VALUE><<EOF>>          {printf("You've reached the end of file, without closing a string value!\n");}
+<VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
 
 "<!--"                  {BEGIN(COMMENT);}
 <COMMENT>"-->"          {BEGIN(INITIAL); printf("\n\nComment was here!\n\n"); return T_COMMENT;}
-<COMMENT>^(--)          {/*κάπως θα έπρεπε να βγάζει ερρορ*/ }
-<COMMENT><<EOF>>          {printf("You've reached the end of file, without closing the comment!\n");}
+<COMMENT>^(--)          {yyerror("Illegal arguement used in comment!\n");} //den douleyei ayto
+<COMMENT><<EOF>>        {yyerror("You've reached the end of file, without closing the comment!\n");}
 
 "<"                     { t_print(START_TAG); return START_TAG; }
 "/>"                    { t_print(SMALL_CLOSETAG); return SMALL_CLOSETAG; }
@@ -57,12 +58,11 @@ WHITESPACE  [ \t]
 "</"                    { t_print(CLOSETAG); return CLOSETAG; }
 "="                     { t_print(ASSIGN); return ASSIGN; }
 
-{WHITESPACE}        { /* Κενά (space) μέσα στο αρχείο - απλά τα αγνοούμε */ }
-\n                  { /*το ιδιο με το whitespace*/}
-\r\n                {/*αλλαγή γραμμής για windows*/}
+{WHITESPACE}            { /* Κενά (space) μέσα στο αρχείο - απλά τα αγνοούμε */ }
+\n|\r\n                 { /*το ιδιο με το whitespace και /r/n ειναι αλλαγή γραμμής για windows*/}
 
-.                   { printf("Unrecognised character at line %d!\n", yylineno); }
-<<EOF>>             { return T_EOF;}
+.                       { yyerror("Unrecognised character\n"); }
+<<EOF>>                 { return T_EOF;}
 
 %%
 
@@ -91,6 +91,10 @@ void t_print(int token_id){
 
 //η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη
 //αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
+
+void yyerror(const char* err){
+    printf("ERROR: (line %d) %s\n",yylineno,yytext);
+}
 
 /*
 Τρεχω αυτό το αρχείο με τις ακόλουθες εντολές:
