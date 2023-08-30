@@ -29,4 +29,3 @@
 
 #define ST_VALUE        26
 #define INT             27
-#define T_COMMENT       28

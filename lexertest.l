@@ -5,6 +5,8 @@
 
 void t_print(int token_id);
 void yyerror(const char* err);
+
+int errors=0;
 %}
 
 /* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
@@ -48,8 +50,9 @@ WHITESPACE  [ \t]
 <VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
 
 "<!--"                  {BEGIN(COMMENT);}
-<COMMENT>"-->"          {BEGIN(INITIAL); printf("\n\nComment was here!\n\n"); return T_COMMENT;}
-<COMMENT>^(--)          {yyerror("Illegal arguement used in comment!\n");} //den douleyei ayto
+<COMMENT>"-->"          {BEGIN(INITIAL); printf("\n\nComment was here!\n\n");} //ta comments ta agnooume opote den kanoume return tpt
+<COMMENT>.              { }
+<COMMENT>"--"           {yyerror("Illegal arguement '--' used in comment!\n"); BEGIN(COMMENT); exit(EXIT_FAILURE);} //gia na stamatisei to diavasma tou arxeioy
 <COMMENT><<EOF>>        {yyerror("You've reached the end of file, without closing the comment!\n");}
 
 "<"                     { t_print(START_TAG); return START_TAG; }
@@ -93,7 +96,13 @@ void t_print(int token_id){
 //αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
 
 void yyerror(const char* err){
-    printf("ERROR: (line %d) %s\n",yylineno,yytext);
+    errors++;
+    printf("\nERROR: (line %d) %s\n",yylineno,err);
+    
+    if(errors==10){
+        printf("\nMaximum number of errors found.\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
 /*
