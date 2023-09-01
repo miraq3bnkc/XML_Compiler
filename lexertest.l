@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "tokens.h" //we will delete it with bison later
 
-void t_print(int token_id);
 void yyerror(const char* err);
 
 int errors=0;
@@ -15,56 +14,59 @@ int errors=0;
 %x VALUE
 %x COMMENT
 
-LETTER      [a-zA-Z]
-INT         [1-9][0-9]*|0
-STRING      .*
-WHITESPACE  [ \t]
+LETTER          [a-zA-Z]
+SPECIAL_CHAR    [_\- ]
+DIGIT           [0-9]
+INT             [1-9]{DIGIT}*|0
+STRING          {LETTER}+{SPECIAL_CHAR}*{LETTER}*{DIGIT}*{LETTER}*
+WHITESPACE      [ \t]
 
 %%
 
-"LinearLayout"          { t_print(LAYOUT_1); return LAYOUT_1; }
-"RelativeLayout"        { t_print(LAYOUT_2); return LAYOUT_2; }
-"RadioGroup"            { t_print(RGROUP); return RGROUP; }
-"TextView"              { t_print(TEXTVIEW); return TEXTVIEW; }
-"ImageView"             { t_print(IMAGEVIEW); return IMAGEVIEW; }
-"Button"                { t_print(BUTTON); return BUTTON; }
-"RadioButton"           { t_print(RBUTTON); return RBUTTON; }
-"ProgressBar"           { t_print(PROGRESSBAR); return PROGRESSBAR; }
+"LinearLayout"          { return LAYOUT_1; }
+"RelativeLayout"        { return LAYOUT_2; }
+"RadioGroup"            { return RGROUP; }
+"TextView"              { return TEXTVIEW; }
+"ImageView"             { return IMAGEVIEW; }
+"Button"                { return BUTTON; }
+"RadioButton"           { return RBUTTON; }
+"ProgressBar"           { return PROGRESSBAR; }
 
-"android:"              { t_print(ANDROIDTAG); return ANDROIDTAG; }
-"layout_width"          { t_print(WIDTH); return WIDTH; }
-"layout_height"         { t_print(HEIGHT); return HEIGHT; }
-"id"                    { t_print(ID); return ID;}
-"orientation"           { t_print(ORIENTATION); return ORIENTATION; }
-"text"                  { t_print(TEXT); return TEXT; }
-"textColor"             { t_print(TEXTCOLOR); return TEXTCOLOR; }
-"src"                   { t_print(SOURCE); return SOURCE; }
-"padding"               { t_print(PADDING); return PADDING; }
-"checkedButton"         { t_print(CHECK_B); return CHECK_B; }
-"max"                   { t_print(MAX); return MAX; }
-"progress"              { t_print(PROGRESS); return PROGRESS; }
+"android:"              { return ANDROIDTAG; }
+"layout_width"          { return WIDTH; }
+"layout_height"         { return HEIGHT; }
+"id"                    { return ID;}
+"orientation"           { return ORIENTATION; }
+"text"                  { return TEXT; }
+"textColor"             { return TEXTCOLOR; }
+"src"                   { return SOURCE; }
+"padding"               { return PADDING; }
+"checkedButton"         { return CHECK_B; }
+"max"                   { return MAX; }
+"progress"              { return PROGRESS; }
 
 \"                      {BEGIN(VALUE);}
-<VALUE>\"               {BEGIN(INITIAL); printf("\nString was here!\n"); return ST_VALUE;}
-<VALUE>{INT}            {t_print(INT); return INT;}
+<VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
+<VALUE>{INT}            { return INT;}
+<VALUE>{STRING}         { return STRING;}
 <VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
 
 "<!--"                  {BEGIN(COMMENT);}
-<COMMENT>"-->"          {BEGIN(INITIAL); printf("\n\nComment was here!\n\n");} //ta comments ta agnooume opote den kanoume return tpt
+<COMMENT>"-->"          {BEGIN(INITIAL);} //ta comments ta agnooume opote den kanoume return tpt
 <COMMENT>.              { }
 <COMMENT>"--"           {yyerror("Illegal arguement '--' used in comment!\n"); BEGIN(COMMENT); exit(EXIT_FAILURE);} //gia na stamatisei to diavasma tou arxeioy
 <COMMENT><<EOF>>        {yyerror("You've reached the end of file, without closing the comment!\n");}
 
-"<"                     { t_print(START_TAG); return START_TAG; }
-"/>"                    { t_print(SMALL_CLOSETAG); return SMALL_CLOSETAG; }
-">"                     { t_print(ENDTAG); return ENDTAG; }
-"</"                    { t_print(CLOSETAG); return CLOSETAG; }
-"="                     { t_print(ASSIGN); return ASSIGN; }
+"<"                     { return START_TAG; }
+"/>"                    { return SMALL_CLOSETAG; }
+">"                     { return ENDTAG; }
+"</"                    { return CLOSETAG; }
+"="                     { return ASSIGN; }
 
 {WHITESPACE}            { /* Κενά (space) μέσα στο αρχείο - απλά τα αγνοούμε */ }
 \n|\r\n                 { /*το ιδιο με το whitespace και /r/n ειναι αλλαγή γραμμής για windows*/}
 
-.                       { yyerror("Unrecognised character\n"); }
+.                       { yyerror("Unrecognised character!\n"); }
 <<EOF>>                 { return T_EOF;}
 
 %%
@@ -86,10 +88,6 @@ int main(int argc, char* argv[]) {
     } while (token != 0);
 
     return 0;
-}
-
-void t_print(int token_id){
-    printf("Found %s (%d) at line %d\n",yytext,token_id,yylineno);
 }
 
 //η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη

@@ -27,5 +27,5 @@
 #define CLOSETAG        24
 #define ASSIGN          25
 
-#define ST_VALUE        26
-#define INT             27
+#define INT             26
+#define STRING          27
