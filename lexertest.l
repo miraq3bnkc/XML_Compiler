@@ -49,6 +49,8 @@ WHITESPACE      [ \t]
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
 <VALUE>{INT}            { return INT;}
 <VALUE>{STRING}         { return STRING;}
+<VALUE>{INT}{STRING}    {yyerror("String value can't start from integer!\n");}
+<VALUE>.                {yyerror("Unrecognised character!\n");}
 <VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
 
 "<!--"                  {BEGIN(COMMENT);}
