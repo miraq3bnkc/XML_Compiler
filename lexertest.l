@@ -44,6 +44,8 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
+"vertical"		{ return VERTICAL;}
+"horizontal"		{ return HORIZONTAL;}
 
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}

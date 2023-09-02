@@ -63,7 +63,7 @@ elements : 		many_comments RootElement elements
 			| many_comments buttonElement comments 
 			| many_comments progressbar comments 
 
-many_comments :		COMMENT <many_comments> 
+many_comments :		COMMENT many_comments 
 			| %empty     
 
 RelativeElement : 	RelativeStartTag relative_elements RelativeEndTag
@@ -88,8 +88,58 @@ radiogroup_opt : 	id_attribute checkedbutton_attribute
 
 RadioGroupEnd : 	CLOSETAG RGROUP ENDTAG
 
-radio_element : 	many_elements RadioButton radio_element 
+radio_element : 	many_comments RadioButton radio_element 
          		| many_elements RadioButton many_elements
+
+buttonElement : 	START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
+
+button_mandatory_cont : mandcontent text_attribute
+
+button_optional_cont> : root_optional padding_attribute 
+			| root_optional
+
+textview :		START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
+
+textview_opt : 		root_optional textColor_attribute
+			| root_optional
+
+imageview : 		START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
+
+imageview_mand : 	mandcontent src_attribute
+
+progressbar : 		START_TAG PROGRESSBAR mandcontent progressbar_opt SMALL_CLOSETAG
+
+progressbar_opt : 	root_optional max_attribute progress_attribute 
+			| root_optional max_attribute 
+			| root_optional progress_attribute 
+			| root_optional 
+
+RadioButton : 		START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
+
+ 
+mandContent : 		ANDROIDTAG WIDTH ASSIGN value ANDROIDTAG HEIGHT ASSIGN value
+
+text_attribute : 	ANDROIDTAG TEXT ASSIGN STRING
+
+id_attribute : 		ANDROIDTAG ID ASSIGNS STRING
+
+padding_attribute : 	ANDROIDTAG PADDING ASSIGNS INT
+
+textColor_attribute :	ANDROIDTAG TEXTCOLOR ASSIGNS STRING
+
+src_attribute :		ANDROIDTAG SOURCE ASSIGNS STRING
+
+max_attribute : 	ANDROIDTAG MAX ASSIGNS INT
+
+progress_attribute : 	ANDROIDTAG PROGRESS ASSIGNS INT
+
+checkedbutton_attribute : ANDROIDTAG CHECK_B ASSIGNS STRING
+
+orientation_attribute : ANDROIDTAG ORIENTATION ASSIGNS VERTICAL 
+			| ANDROIDTAG ORIENTATION ASSIGNS HORIZONTAL
+
+value :			STRING 
+			| INT
 
 
 %%
