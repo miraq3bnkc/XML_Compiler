@@ -1,15 +1,14 @@
-%{
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include "y.tab.h"
-    #include "lex.yy.h" //Include Flex-generated header
-    extern FILE *yyin;
-    int yylex();
-    void yyerror(const char* s);
+﻿%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "y.tab.h"
+#include "lex.yy.h"  //Include Flex-generated header
+extern FILE *yyin; //Το yyin είναι ειδική μεταβλητή του Flex.
+int yylex();
+void yyerror(const char* s);
 %}
-
-%token INT STRING LETTER
+%token INT STRING 
 %token ASSIGN
 %token START_TAG SMALL_CLOSETAG ENDTAG CLOSETAG
 %token COMMENT
@@ -34,7 +33,7 @@
 %token MAX
 %token PROGRESS
 
-%token EOF
+%token EOF	0
 
 %%
 
@@ -95,7 +94,7 @@ buttonElement : 	START_TAG BUTTON button_mandatory_cont button_optional_cont SMA
 
 button_mandatory_cont : mandcontent text_attribute
 
-button_optional_cont> : root_optional padding_attribute 
+button_optional_cont : root_optional padding_attribute 
 			| root_optional
 
 textview :		START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
@@ -147,7 +146,17 @@ void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
 
-int main(void) {
-    yyparse(); //parse the input
-    return 0;
+int main(int argc, char* argv[]) {
+
+    yyin = fopen(argv[1], "r"); 
+
+    if (yyin == NULL) {
+        printf("%s: File not found\n", argv[1]);
+        return 1;
+    }
+
+	yyparse(); //κάνει συντακτική ανάλυση
+
+    fclose(yyin);
+	return 0;
 }

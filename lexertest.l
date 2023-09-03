@@ -44,8 +44,8 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
-"vertical"		{ return VERTICAL;}
-"horizontal"		{ return HORIZONTAL;}
+"vertical"		        { return VERTICAL;}
+"horizontal"		    { return HORIZONTAL;}
 
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
@@ -74,25 +74,6 @@ WHITESPACE      [ \t]
 <<EOF>>                 { return T_EOF;}
 
 %%
-
-int main(int argc, char* argv[]) {
-
-    int token; 
-
-    yyin = fopen(argv[1], "r"); // Το yyin είναι ειδική μεταβλητή του Flex.
-                                // Ισοδυναμεί με ένα FILE Pointer για να διαβάζει το αρχείο ο Flex
-
-    if (yyin == NULL) {
-        printf("%s: File not found\n", argv[1]);
-        return 1;
-    }
-
-    do { // Μέχρι να φτάσουμε στο EOF διαβάζουμε κάθε Token μέσα απο το αρχείο.
-        token = yylex();
-    } while (token != 0);
-
-    return 0;
-}
 
 //η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη
 //αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
