@@ -1,4 +1,4 @@
-﻿%{
+%{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +8,7 @@ extern FILE *yyin; //Το yyin είναι ειδική μεταβλητή του
 int yylex();
 void yyerror(const char* s);
 %}
+
 %token INT STRING 
 %token ASSIGN
 %token START_TAG SMALL_CLOSETAG ENDTAG CLOSETAG
