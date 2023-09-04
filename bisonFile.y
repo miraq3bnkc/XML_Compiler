@@ -2,14 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "y.tab.h"
-#include "lex.yy.h"  //Include Flex-generated header
-extern FILE *yyin; //Το yyin είναι ειδική μεταβλητή του Flex.
+//#include "y.tab.h"
+
+#include "bisonFile.tab.h"
+
+int errors=0;
+extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
+extern int yylineno;
 int yylex();
 void yyerror(const char* s);
 %}
 
-%token INT STRING 
+%token INT STRING
 %token ASSIGN
 %token START_TAG SMALL_CLOSETAG ENDTAG CLOSETAG
 %token COMMENT
@@ -18,7 +22,7 @@ void yyerror(const char* s);
 %token LAYOUT_1 LAYOUT_2
 %token RGROUP
 %token TEXTVIEW IMAGEVIEW
-%token BUTTON 
+%token BUTTON
 %token RBUTTON
 %token PROGRESSBAR
 
@@ -26,6 +30,8 @@ void yyerror(const char* s);
 %token WIDTH HEIGHT
 %token ID
 %token ORIENTATION
+%token VERTICAL
+%token HORIZONTAL
 %token TEXT
 %token TEXTCOLOR
 %token SOURCE
@@ -34,122 +40,133 @@ void yyerror(const char* s);
 %token MAX
 %token PROGRESS
 
-%token EOF	0
+%token T_EOF	0
 
 %%
 
-RootElement : 		LinearElement 
-			| RelativeElement
+RootElement : 							LinearElement
+														| RelativeElement
 
-LinearElement : 	LinearStartTag elements LinearEndTag
+LinearElement : 						LinearStartTag elements LinearEndTag
 
-LinearStartTag : 	START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
+LinearStartTag : 						START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
 
-linear_optional : 	root_optional orientation_attribute 
-			| root_optional
- 
-LinearEndTag : 		CLOSETAG LAYOUT_1 ENDTAG
+linear_optional : 					root_optional orientation_attribute
+														| root_optional
 
-elements : 		many_comments RootElement elements 
-			| many_comments RadioGroup elements 
-			| many_comments textview elements 
-			| many_comments imageview elements 
-			| many_comments buttonElement elements 
-			| many_comments progressbar elements 
-			| many_comments RootElement many_comments 
-			| many_comments RadioGroup many_comments 
-			| many_comments textview many_comments
-			| many_comments imageview comments 
-			| many_comments buttonElement comments 
-			| many_comments progressbar comments 
+LinearEndTag : 							CLOSETAG LAYOUT_1 ENDTAG
 
-many_comments :		COMMENT many_comments 
-			| %empty     
+elements : 									many_comments RootElement elements
+														| many_comments RadioGroup elements
+														| many_comments textview elements
+														| many_comments imageview elements
+														| many_comments buttonElement elements
+														| many_comments progressbar elements
+														| many_comments RootElement many_comments
+														| many_comments RadioGroup many_comments
+														| many_comments textview many_comments
+														| many_comments imageview many_comments
+														| many_comments buttonElement many_comments
+														| many_comments progressbar many_comments
 
-RelativeElement : 	RelativeStartTag relative_elements RelativeEndTag
+many_comments :							COMMENT many_comments
+														| %empty
 
-RelativeStartTag : 	START_TAG LAYOUT_2 mandContent root_optional ENDTAG
+RelativeElement : 					RelativeStartTag relative_elements RelativeEndTag
 
-root_optional : 	id_attribute 
-			| %empty 
+RelativeStartTag : 					START_TAG LAYOUT_2 mandContent root_optional ENDTAG
 
-RelativeEndTag : 	CLOSETAG LAYOUT_2 ENDTAG
+root_optional : 						id_attribute
+														| %empty
 
-relative_elements : 	elements 
-			| %empty 
+RelativeEndTag : 						CLOSETAG LAYOUT_2 ENDTAG
 
-RadioGroup : 		RadioGroupStart radio_element RadioGroupEnd
+relative_elements : 				elements
+														| %empty
 
-RadioGroupStart : 	START_TAG RGROUP mandcontent radiogroup_opt ENDTAG
- 
-radiogroup_opt : 	id_attribute checkedbutton_attribute 
-			| id_attribute 
-			| checkedbutton_attribute
+RadioGroup : 								RadioGroupStart radio_element RadioGroupEnd
 
-RadioGroupEnd : 	CLOSETAG RGROUP ENDTAG
+RadioGroupStart : 					START_TAG RGROUP mandContent radiogroup_opt ENDTAG
 
-radio_element : 	many_comments RadioButton radio_element 
-         		| many_elements RadioButton many_elements
+radiogroup_opt : 						id_attribute checkedbutton_attribute
+														| id_attribute
+														| checkedbutton_attribute
 
-buttonElement : 	START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
+RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG
+//egrafe prin many-elements
+radio_element : 						many_comments RadioButton radio_element
+         										| elements RadioButton elements
 
-button_mandatory_cont : mandcontent text_attribute
+buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
-button_optional_cont : root_optional padding_attribute 
-			| root_optional
+button_mandatory_cont : 		mandContent text_attribute
 
-textview :		START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
+button_optional_cont :	 		root_optional padding_attribute
+												 		| root_optional
 
-textview_opt : 		root_optional textColor_attribute
-			| root_optional
+textview :									START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
 
-imageview : 		START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
+textview_opt : 							root_optional textColor_attribute
+														| root_optional
 
-imageview_mand : 	mandcontent src_attribute
+imageview : 								START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
 
-progressbar : 		START_TAG PROGRESSBAR mandcontent progressbar_opt SMALL_CLOSETAG
+imageview_mand : 						mandContent src_attribute
 
-progressbar_opt : 	root_optional max_attribute progress_attribute 
-			| root_optional max_attribute 
-			| root_optional progress_attribute 
-			| root_optional 
+progressbar : 							START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
 
-RadioButton : 		START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
+progressbar_opt : 					root_optional max_attribute progress_attribute
+														| root_optional max_attribute
+														| root_optional progress_attribute
+														| root_optional
 
- 
-mandContent : 		ANDROIDTAG WIDTH ASSIGN value ANDROIDTAG HEIGHT ASSIGN value
+RadioButton : 							START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
 
-text_attribute : 	ANDROIDTAG TEXT ASSIGN STRING
 
-id_attribute : 		ANDROIDTAG ID ASSIGNS STRING
+mandContent : 							ANDROIDTAG WIDTH ASSIGN value ANDROIDTAG HEIGHT ASSIGN value
 
-padding_attribute : 	ANDROIDTAG PADDING ASSIGNS INT
+text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
-textColor_attribute :	ANDROIDTAG TEXTCOLOR ASSIGNS STRING
+id_attribute : 							ANDROIDTAG ID ASSIGN STRING
 
-src_attribute :		ANDROIDTAG SOURCE ASSIGNS STRING
+padding_attribute : 				ANDROIDTAG PADDING ASSIGN INT
 
-max_attribute : 	ANDROIDTAG MAX ASSIGNS INT
+textColor_attribute :				ANDROIDTAG TEXTCOLOR ASSIGN STRING
 
-progress_attribute : 	ANDROIDTAG PROGRESS ASSIGNS INT
+src_attribute :							ANDROIDTAG SOURCE ASSIGN STRING
 
-checkedbutton_attribute : ANDROIDTAG CHECK_B ASSIGNS STRING
+max_attribute : 						ANDROIDTAG MAX ASSIGN INT
 
-orientation_attribute : ANDROIDTAG ORIENTATION ASSIGNS VERTICAL 
-			| ANDROIDTAG ORIENTATION ASSIGNS HORIZONTAL
+progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN INT
 
-value :			STRING 
-			| INT
+checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING
+
+orientation_attribute :			ANDROIDTAG ORIENTATION ASSIGN VERTICAL
+														| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+
+
+value :											STRING
+														| INT
 
 
 %%
-void yyerror(const char *s) {
+/*void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
+}*/
+
+void yyerror(const char* err){
+    errors++;
+    printf("\nERROR: (line %d) %s\n",yylineno,err);
+
+    if(errors==10){
+        printf("\nMaximum number of errors found.\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char* argv[]) {
 
-    yyin = fopen(argv[1], "r"); 
+    yyin = fopen(argv[1], "r");
 
     if (yyin == NULL) {
         printf("%s: File not found\n", argv[1]);

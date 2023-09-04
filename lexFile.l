@@ -1,15 +1,17 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "tokens.h" //we will delete it with bison later
+//#include "tokens.h" //we will delete it with bison later
+#include "bisonFile.tab.h"
 
 void yyerror(const char* err);
 
-int errors=0;
+//int errors=0;
 %}
 
 /* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
 %option yylineno
+%option noyywrap
 
 %x VALUE
 %x COMMENT
@@ -22,7 +24,6 @@ STRING          {LETTER}+{SPECIAL_CHAR}*{LETTER}*{DIGIT}*{LETTER}*
 WHITESPACE      [ \t]
 
 %%
-
 "LinearLayout"          { return LAYOUT_1; }
 "RelativeLayout"        { return LAYOUT_2; }
 "RadioGroup"            { return RGROUP; }
@@ -37,6 +38,8 @@ WHITESPACE      [ \t]
 "layout_height"         { return HEIGHT; }
 "id"                    { return ID;}
 "orientation"           { return ORIENTATION; }
+"horizontal"            { return HORIZONTAL; }
+"vertical"              { return VERTICAL; }
 "text"                  { return TEXT; }
 "textColor"             { return TEXTCOLOR; }
 "src"                   { return SOURCE; }
@@ -44,9 +47,6 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
-"vertical"		        { return VERTICAL;}
-"horizontal"		    { return HORIZONTAL;}
-
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
 <VALUE>{INT}            { return INT;}
@@ -78,15 +78,6 @@ WHITESPACE      [ \t]
 //η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη
 //αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
 
-void yyerror(const char* err){
-    errors++;
-    printf("\nERROR: (line %d) %s\n",yylineno,err);
-    
-    if(errors==10){
-        printf("\nMaximum number of errors found.\n");
-        exit(EXIT_FAILURE);
-    }
-}
 
 /*
 Τρεχω αυτό το αρχείο με τις ακόλουθες εντολές:
