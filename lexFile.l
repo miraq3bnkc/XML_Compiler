@@ -1,12 +1,10 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-//#include "tokens.h" //we will delete it with bison later
 #include "bisonFile.tab.h"
 
 void yyerror(const char* err);
 
-//int errors=0;
 %}
 
 /* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
@@ -38,8 +36,6 @@ WHITESPACE      [ \t]
 "layout_height"         { return HEIGHT; }
 "id"                    { return ID;}
 "orientation"           { return ORIENTATION; }
-"horizontal"            { return HORIZONTAL; }
-"vertical"              { return VERTICAL; }
 "text"                  { return TEXT; }
 "textColor"             { return TEXTCOLOR; }
 "src"                   { return SOURCE; }
@@ -49,6 +45,8 @@ WHITESPACE      [ \t]
 "progress"              { return PROGRESS; }
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
+<VALUE>"vertical"       { return VERTICAL; }
+<VALUE>"horizontal"     { return HORIZONTAL; }
 <VALUE>{INT}            { return INT;}
 <VALUE>{STRING}         { return STRING;}
 <VALUE>{INT}{STRING}    {yyerror("String value can't start from integer!\n");}
@@ -77,13 +75,3 @@ WHITESPACE      [ \t]
 
 //η μεταβλητη yytext ειναι ενσωματομενη στη flex και μας δείχνει την αναγνωρισμένη λέξη
 //αντιστοιχα το yylineno μας δειχνει σε ποια γραμμή του κώδικα βρισκόμαστε
-
-
-/*
-Τρεχω αυτό το αρχείο με τις ακόλουθες εντολές:
-
-flex lexertest.l
-gcc lex.yy.c -lfl
-./a.out testfile1.xml
-
-*/

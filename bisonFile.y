@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "y.tab.h"
-
 #include "bisonFile.tab.h"
 
 int errors=0;
@@ -13,10 +11,11 @@ int yylex();
 void yyerror(const char* s);
 %}
 
+%define parse.error verbose
+
 %token INT STRING
 %token ASSIGN
 %token START_TAG SMALL_CLOSETAG ENDTAG CLOSETAG
-%token COMMENT
 %token WHITESPACE
 
 %token LAYOUT_1 LAYOUT_2
@@ -45,80 +44,78 @@ void yyerror(const char* s);
 %%
 
 RootElement : 							LinearElement
-														| RelativeElement
+										| RelativeElement
 
 LinearElement : 						LinearStartTag elements LinearEndTag
 
 LinearStartTag : 						START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
 
-linear_optional : 					root_optional orientation_attribute
-														| root_optional
+linear_optional : 						root_optional orientation_attribute
+										| root_optional | orientation_attribute
 
 LinearEndTag : 							CLOSETAG LAYOUT_1 ENDTAG
 
-elements : 									many_comments RootElement elements
-														| many_comments RadioGroup elements
-														| many_comments textview elements
-														| many_comments imageview elements
-														| many_comments buttonElement elements
-														| many_comments progressbar elements
-														| many_comments RootElement many_comments
-														| many_comments RadioGroup many_comments
-														| many_comments textview many_comments
-														| many_comments imageview many_comments
-														| many_comments buttonElement many_comments
-														| many_comments progressbar many_comments
+elements : 								 RootElement elements
+										|  RadioGroup elements
+										|  textview elements
+										|  imageview elements
+										|  buttonElement elements
+										|  progressbar elements
+										|  RootElement 
+										|  RadioGroup 
+										|  textview 
+										|  imageview 
+										|  buttonElement 
+										|  progressbar 
 
-many_comments :							COMMENT many_comments
-														| %empty
+RelativeElement : 						RelativeStartTag relative_elements RelativeEndTag
 
-RelativeElement : 					RelativeStartTag relative_elements RelativeEndTag
-
-RelativeStartTag : 					START_TAG LAYOUT_2 mandContent root_optional ENDTAG
+RelativeStartTag : 						START_TAG LAYOUT_2 mandContent root_optional ENDTAG
 
 root_optional : 						id_attribute
-														| %empty
+										| %empty
 
 RelativeEndTag : 						CLOSETAG LAYOUT_2 ENDTAG
 
-relative_elements : 				elements
-														| %empty
+relative_elements : 					elements
+										| %empty
 
-RadioGroup : 								RadioGroupStart radio_element RadioGroupEnd
+RadioGroup : 							RadioGroupStart radio_element RadioGroupEnd
 
-RadioGroupStart : 					START_TAG RGROUP mandContent radiogroup_opt ENDTAG
+RadioGroupStart : 						START_TAG RGROUP mandContent radiogroup_opt ENDTAG
 
 radiogroup_opt : 						id_attribute checkedbutton_attribute
-														| id_attribute
-														| checkedbutton_attribute
+										| id_attribute
+										| checkedbutton_attribute
+										| %empty
 
 RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG
 //egrafe prin many-elements
-radio_element : 						many_comments RadioButton radio_element
-         										| elements RadioButton elements
+radio_element : 						 RadioButton radio_element
+         								| RadioButton 
 
 buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
-button_mandatory_cont : 		mandContent text_attribute
+button_mandatory_cont : 				mandContent text_attribute
 
-button_optional_cont :	 		root_optional padding_attribute
-												 		| root_optional
+button_optional_cont :	 				root_optional padding_attribute
+										| root_optional | padding_attribute
 
-textview :									START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
+textview :								START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
 
 textview_opt : 							root_optional textColor_attribute
-														| root_optional
+										| root_optional
 
-imageview : 								START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
+imageview : 							START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
 
 imageview_mand : 						mandContent src_attribute
 
 progressbar : 							START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
 
-progressbar_opt : 					root_optional max_attribute progress_attribute
-														| root_optional max_attribute
-														| root_optional progress_attribute
-														| root_optional
+progressbar_opt : 						root_optional max_attribute progress_attribute
+										| root_optional max_attribute
+										| root_optional progress_attribute
+										| root_optional
 
 RadioButton : 							START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
 
@@ -129,24 +126,24 @@ text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
 id_attribute : 							ANDROIDTAG ID ASSIGN STRING
 
-padding_attribute : 				ANDROIDTAG PADDING ASSIGN INT
+padding_attribute : 					ANDROIDTAG PADDING ASSIGN INT
 
-textColor_attribute :				ANDROIDTAG TEXTCOLOR ASSIGN STRING
+textColor_attribute :					ANDROIDTAG TEXTCOLOR ASSIGN STRING
 
 src_attribute :							ANDROIDTAG SOURCE ASSIGN STRING
 
 max_attribute : 						ANDROIDTAG MAX ASSIGN INT
 
-progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN INT
+progress_attribute : 					ANDROIDTAG PROGRESS ASSIGN INT
 
-checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING
+checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING
 
-orientation_attribute :			ANDROIDTAG ORIENTATION ASSIGN VERTICAL
-														| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+orientation_attribute :					ANDROIDTAG ORIENTATION ASSIGN VERTICAL
+										| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
 
 
-value :											STRING
-														| INT
+value :									STRING
+										| INT
 
 
 %%
