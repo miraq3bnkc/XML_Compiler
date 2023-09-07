@@ -47,7 +47,7 @@ WHITESPACE      [ \t]
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
 <VALUE>"vertical"       { return VERTICAL; }
 <VALUE>"horizontal"     { return HORIZONTAL; }
-<VALUE>{INT}            { return INT;}
+<VALUE>{INT}            { yylval.integer=atoi(yytext); return INT;}
 <VALUE>{STRING}         { return STRING;}
 <VALUE>{INT}{STRING}    {yyerror("String value can't start from integer!\n");}
 <VALUE>.                {yyerror("Unrecognised character!\n");}

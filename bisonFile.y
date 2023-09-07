@@ -13,7 +13,12 @@ void yyerror(const char* s);
 
 %define parse.error verbose
 
-%token INT STRING
+%union{
+	int integer;
+}
+
+%token <integer> INT 
+%token STRING
 %token ASSIGN										"="
 %token START_TAG									"<" 
 %token SMALL_CLOSETAG 								"/>"
