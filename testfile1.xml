@@ -2,13 +2,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-<!--αησωδβαισκδξωξ;δσω-->
     <TextView
         android:layout_width="20"
         android:layout_height="20"
         android:text="Dummy text"
         android:id="TV1"/>
-    <RadioGroup <!--σκδξωανδσξωσδξφ-->
+    <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 <!--δαδξαδξφσκδφκδ-->
