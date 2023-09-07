@@ -14,14 +14,16 @@ void yyerror(const char* s);
 %define parse.error verbose
 
 %token INT STRING
-%token ASSIGN
-%token START_TAG SMALL_CLOSETAG ENDTAG CLOSETAG
-%token WHITESPACE
+%token ASSIGN										"="
+%token START_TAG									"<" 
+%token SMALL_CLOSETAG 								"/>"
+%token ENDTAG 										">"
+%token CLOSETAG										"</"
 
 %token LAYOUT_1 LAYOUT_2
-%token RGROUP
+%token RGROUP										
 %token TEXTVIEW IMAGEVIEW
-%token BUTTON
+%token BUTTON										
 %token RBUTTON
 %token PROGRESSBAR
 
