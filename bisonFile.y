@@ -50,8 +50,10 @@ LinearElement : 						LinearStartTag elements LinearEndTag
 
 LinearStartTag : 						START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
 
-linear_optional : 						root_optional orientation_attribute
-										| root_optional | orientation_attribute
+linear_optional : 						id_attribute orientation_attribute
+										| id_attribute 
+										| orientation_attribute
+										| %empty
 
 LinearEndTag : 							CLOSETAG LAYOUT_1 ENDTAG
 
@@ -90,7 +92,7 @@ radiogroup_opt : 						id_attribute checkedbutton_attribute
 										| %empty
 
 RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG
-//egrafe prin many-elements
+
 radio_element : 						 RadioButton radio_element
          								| RadioButton 
 
@@ -98,13 +100,17 @@ buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_con
 
 button_mandatory_cont : 				mandContent text_attribute
 
-button_optional_cont :	 				root_optional padding_attribute
-										| root_optional | padding_attribute
+button_optional_cont :	 				id_attribute padding_attribute
+										| id_attribute 
+										| padding_attribute
+										| %empty
 
 textview :								START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
 
-textview_opt : 							root_optional textColor_attribute
-										| root_optional
+textview_opt : 							id_attribute textColor_attribute
+										| id_attribute
+										| textColor_attribute
+										| %empty
 
 imageview : 							START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
 
@@ -112,10 +118,13 @@ imageview_mand : 						mandContent src_attribute
 
 progressbar : 							START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
 
-progressbar_opt : 						root_optional max_attribute progress_attribute
-										| root_optional max_attribute
-										| root_optional progress_attribute
-										| root_optional
+progressbar_opt : 						id_attribute max_attribute progress_attribute
+										| id_attribute max_attribute
+										| id_attribute progress_attribute
+										| id_attribute
+										| max_attribute
+										| progress_attribute
+										| %empty
 
 RadioButton : 							START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
 
