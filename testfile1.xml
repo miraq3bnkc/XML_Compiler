@@ -9,20 +9,28 @@
         android:id="TV1"/>
     <RadioGroup 
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:numberOfButtons="3"
+        android:id="Rhihi"
+        android:checkedButton="RB3">
 <!--δαδξαδξφσκδφ
 κδ-->
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Option 1"
-            android:id="RB1"/>
+            />
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Option 2"
-            android:id="RB2"/>
+            />
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Option 3"
+            android:id="RB3"/>
     </RadioGroup>
 <!-- This is a comment, ignore me-->
     <RelativeLayout

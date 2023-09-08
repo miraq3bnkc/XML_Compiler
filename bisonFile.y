@@ -10,7 +10,17 @@ extern int yylineno;
 int yylex();
 void yyerror(const char* s);
 
-char *radio_button_id[10];
+//FUNCTIONS AND VALUES FOR COMPARING CHECKEDBUTTON WITH RADIOBUTTON IDS
+void cmp_check();
+void save_rb_id(char* id);
+int rbs=1; //number of radio buttons (radiogroup must always contain at leat one , so we initialize it to 1)
+int rb_state=0; //state=1 for when we are defining a radiogroup else state=0  
+char **radio_button_id;
+char* checked_value; 
+
+int line[2];
+int number_value=0;
+void check_number();
 
 %}
 
@@ -18,10 +28,11 @@ char *radio_button_id[10];
 
 %union{
 	int integer;
+	char* string;
 }
 
 %token <integer> INT 
-%token STRING
+%token <string> STRING
 %token ASSIGN										"="
 %token START_TAG									"<" 
 %token SMALL_CLOSETAG 								"/>"
@@ -48,13 +59,17 @@ char *radio_button_id[10];
 %token CHECK_B
 %token MAX
 %token PROGRESS
+%token <integer> NUM_BUTTONS
 
 %token T_EOF	0
+
+%type<string> id_attribute checkedbutton_attribute
 
 %%
 
 RootElement : 							LinearElement
 										| RelativeElement
+										;
 
 LinearElement : 						LinearStartTag elements LinearEndTag
 
@@ -94,17 +109,19 @@ relative_elements : 					elements
 
 RadioGroup : 							RadioGroupStart radio_element RadioGroupEnd
 
-RadioGroupStart : 						START_TAG RGROUP mandContent radiogroup_opt ENDTAG
+RadioGroupStart : 						START_TAG RGROUP radiogroup_mand radiogroup_opt ENDTAG							{rb_state=1;}
+
+radiogroup_mand :						mandContent numofButtons_attribute
 
 radiogroup_opt : 						id_attribute checkedbutton_attribute
 										| id_attribute
 										| checkedbutton_attribute
 										| %empty
 
-RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG
-
-radio_element : 						 RadioButton radio_element
-         								| RadioButton 
+RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG												{ cmp_check(); check_number(); rb_state=0; rbs=1;}
+																											/*initialize values as before*/
+radio_element : 						 RadioButton radio_element													
+         								| RadioButton 																
 
 buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
@@ -136,14 +153,14 @@ progressbar_opt : 						id_attribute max_attribute progress_attribute
 										| progress_attribute
 										| %empty
 
-RadioButton : 							START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG
-
+RadioButton : 							START_TAG RBUTTON button_mandatory_cont root_optional SMALL_CLOSETAG		{rbs++; }
+/*increment rbs counter after declaration of every radiobutton*/
 
 mandContent : 							ANDROIDTAG WIDTH ASSIGN value ANDROIDTAG HEIGHT ASSIGN value
 
 text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
-id_attribute : 							ANDROIDTAG ID ASSIGN STRING
+id_attribute : 							ANDROIDTAG ID ASSIGN STRING													{save_rb_id($4);}
 
 padding_attribute : 					ANDROIDTAG PADDING ASSIGN INT
 
@@ -155,11 +172,12 @@ max_attribute : 						ANDROIDTAG MAX ASSIGN INT
 
 progress_attribute : 					ANDROIDTAG PROGRESS ASSIGN INT
 
-checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING
+checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING											{checked_value=$4; line[0]=yylineno;}				
 
 orientation_attribute :					ANDROIDTAG ORIENTATION ASSIGN VERTICAL
 										| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
 
+numofButtons_attribute :				ANDROIDTAG NUM_BUTTONS ASSIGN INT											{ line[1]=yylineno; number_value=$4;}
 
 value :									STRING
 										| INT
@@ -180,7 +198,58 @@ void yyerror(const char* err){
     }
 }
 
+/*Function to check if numberOfButtons attribute is equal to the actual number of RadioButtons inside a RadioGroup*/
+void check_number(){
+	int x=rbs-1;
+	if(x<number_value){
+		printf("\nThere should be %d RadioButtons, as declared by numberOfButtons attribute at line %d!",number_value,line[1]);
+		yyerror("There were less RadioButtons defined in this RadioGroup than what it was expected.");
+	}
+	else if(x>number_value){
+		printf("\nThere should be %d RadioButtons, as declared by numberOfButtons attribute at line %d!",number_value,line[1]);
+		yyerror("There were more RadioButtons defined in this RadioGroup than what it was expected.");
+	}
+}
+
+/*Compare if the value of checkedButton is equal to one of the radiobuttons ids*/
+void cmp_check(){
+	int x=0, y=0;
+	if(checked_value!=NULL){
+		for(int i=0;i<rbs-1;i++){
+			if(radio_button_id[i]!=NULL){
+				if(checked_value=radio_button_id[i]){
+					x++;
+					//if x>0 one id matches the checkedButton attribute
+				}
+				y++; 
+				//if y>0 at least one id attribute was not null
+			}
+		}
+		if(x==0 && y!=0){
+		//if there were no matches , but there was a not null id attribute
+			printf("\nNo match with checkedbutton attribute at line %d!",line[0]);
+			yyerror("Checked all android:id attributes of RadioButton elements.");
+		}
+	}
+}
+
+/*save the string ids of the radiobuttons declared*/
+void save_rb_id(char* id){
+	int i;
+	if(rb_state==0){
+		/*do nothing*/
+	}
+	else if(rb_state==1){
+		radio_button_id[rbs-1]=id; 
+	}
+	else{
+		printf("some exception occured\n");
+	}
+	radio_button_id=(char**)realloc(radio_button_id,(rbs+1)*sizeof(char*));
+}
+
 int main(int argc, char* argv[]) {
+	radio_button_id=(char**)calloc(1,sizeof(char*));
 
     yyin = fopen(argv[1], "r");
 

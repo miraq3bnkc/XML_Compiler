@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bisonFile.tab.h"
 
 void yyerror(const char* err);
@@ -45,13 +46,14 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
+"numberOfButtons"       { yylval.integer=atoi(yytext); return NUM_BUTTONS;}
 
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL);}
 <VALUE>"vertical"       { return VERTICAL; }
 <VALUE>"horizontal"     { return HORIZONTAL; }
 <VALUE>{INT}            { yylval.integer=atoi(yytext); return INT;}
-<VALUE>{STRING}         { return STRING;}
+<VALUE>{STRING}         { yylval.string=strdup(yytext); return STRING;}
 <VALUE>{INT}{STRING}    {yyerror("String value can't start from integer!\n");}
 <VALUE>.                {yyerror("Unrecognised character!\n");}
 <VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
