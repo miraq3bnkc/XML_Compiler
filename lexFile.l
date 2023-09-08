@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "bisonFile.tab.h"
+#include "bisonFile.tab.h" // including tokens from bison
 
 void yyerror(const char* err);
 

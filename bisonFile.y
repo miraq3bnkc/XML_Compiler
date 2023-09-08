@@ -7,6 +7,7 @@
 int errors=0;
 extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
 extern int yylineno;
+extern int yyparse();
 int yylex();
 void yyerror(const char* s);
 %}
@@ -20,15 +21,15 @@ void yyerror(const char* s);
 %token <integer> INT 
 %token STRING
 %token ASSIGN										"="
-%token START_TAG									"<" 
-%token SMALL_CLOSETAG 								"/>"
-%token ENDTAG 										">"
-%token CLOSETAG										"</"
+%token START_TAG								"<"
+%token SMALL_CLOSETAG 					"/>"
+%token ENDTAG 									">"
+%token CLOSETAG									"</"
 
 %token LAYOUT_1 LAYOUT_2
-%token RGROUP										
+%token RGROUP
 %token TEXTVIEW IMAGEVIEW
-%token BUTTON										
+%token BUTTON
 %token RBUTTON
 %token PROGRESSBAR
 
@@ -50,19 +51,22 @@ void yyerror(const char* s);
 
 %%
 
-RootElement : 							LinearElement
+RootElement : 			LinearElement
 										| RelativeElement
 
-LinearElement : 						LinearStartTag elements LinearEndTag
 
-LinearStartTag : 						START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
+LinearElement : 		LinearStartTag elements LinearEndTag
+										|LinearStartTag elements LinearEndTag T_EOF {printf("End of file\n");}
+
+
+LinearStartTag : 		START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
 
 linear_optional : 						id_attribute orientation_attribute
-										| id_attribute 
+										| id_attribute
 										| orientation_attribute
 										| %empty
 
-LinearEndTag : 							CLOSETAG LAYOUT_1 ENDTAG
+LinearEndTag : 			CLOSETAG LAYOUT_1 ENDTAG
 
 elements : 								 RootElement elements
 										|  RadioGroup elements
@@ -70,12 +74,12 @@ elements : 								 RootElement elements
 										|  imageview elements
 										|  buttonElement elements
 										|  progressbar elements
-										|  RootElement 
-										|  RadioGroup 
-										|  textview 
-										|  imageview 
-										|  buttonElement 
-										|  progressbar 
+										|  RootElement
+										|  RadioGroup
+										|  textview
+										|  imageview
+										|  buttonElement
+										|  progressbar
 
 RelativeElement : 						RelativeStartTag relative_elements RelativeEndTag
 
@@ -101,14 +105,14 @@ radiogroup_opt : 						id_attribute checkedbutton_attribute
 RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG
 
 radio_element : 						 RadioButton radio_element
-         								| RadioButton 
+         								| RadioButton
 
 buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
 button_mandatory_cont : 				mandContent text_attribute
 
 button_optional_cont :	 				id_attribute padding_attribute
-										| id_attribute 
+										| id_attribute
 										| padding_attribute
 										| %empty
 
@@ -185,13 +189,21 @@ int main(int argc, char* argv[]) {
         printf("%s: File not found\n", argv[1]);
         return 1;
     }
-
-	yyparse(); //κάνει συντακτική ανάλυση
+		int result = yyparse(); //κάνει συντακτική ανάλυση
+		printf("%d",result);
+		if (result == 0) {
+		    printf("Parsing was successful!\n");
+		    // Perform actions for successful parsing
+		} else {
+		    printf("Parsing encountered an error.\n");
+		    // Handle the parsing error, print error messages, etc.
+		}
 
 	if(errors==0){
 		printf("XML file compiled successfully with 0 errors!\n");
 	}
 
     fclose(yyin);
+
 	return 0;
 }
