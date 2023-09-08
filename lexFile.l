@@ -5,6 +5,8 @@
 
 void yyerror(const char* err);
 
+int invalid_comment =0;
+
 %}
 
 /* Μεταβλητή τύπου int ενσωματωμένη στο Flex. Κάθε φορά που θα συναντά το Flex τον χαρακτήρα νέας γραμμής ('\n'), η μεταβλητή θα αυξάνεται ΑΥΤΟΜΑΤΑ κατά 1 */
@@ -19,7 +21,7 @@ SPECIAL_CHAR    [_\- ]
 DIGIT           [0-9]
 INT             [1-9]{DIGIT}*|0
 STRING          {LETTER}+{SPECIAL_CHAR}*{LETTER}*{DIGIT}*{LETTER}*
-WHITESPACE      [ \t]
+WHITESPACE      [ \t] 
 
 %%
 "LinearLayout"          { return LAYOUT_1; }
@@ -43,6 +45,7 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
+
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
 <VALUE>"vertical"       { return VERTICAL; }
@@ -55,14 +58,14 @@ WHITESPACE      [ \t]
 
 "<!--"                  {BEGIN(COMMENT);}
 <COMMENT>"-->"          {BEGIN(INITIAL);} //ta comments ta agnooume opote den kanoume return tpt
-<COMMENT>.              { }
+<COMMENT>.              { if(invalid_comment==1){ yyerror("You can't comment here!\n");} }
 <COMMENT>"--"           {yyerror("Illegal arguement '--' used in comment!\n"); BEGIN(COMMENT); exit(EXIT_FAILURE);} //gia na stamatisei to diavasma tou arxeioy
 <COMMENT><<EOF>>        {yyerror("You've reached the end of file, without closing the comment!\n");}
 
-"<"                     { return START_TAG; }
-"/>"                    { return SMALL_CLOSETAG; }
-">"                     { return ENDTAG; }
-"</"                    { return CLOSETAG; }
+"<"                     { invalid_comment=1; return START_TAG; }
+"/>"                    { invalid_comment=0; return SMALL_CLOSETAG; }
+">"                     { invalid_comment=0; return ENDTAG; }
+"</"                    { invalid_comment=1; return CLOSETAG; }
 "="                     { return ASSIGN; }
 
 {WHITESPACE}            { /* Κενά (space) μέσα στο αρχείο - απλά τα αγνοούμε */ }
