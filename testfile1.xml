@@ -1,5 +1,5 @@
 <LinearLayout
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:orientation="vertical">
     <TextView
@@ -7,17 +7,15 @@
         android:layout_height="20"
         android:text="Dummy text"
         android:id="TV1"/>
-    <RadioGroup 
+    <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-<!--δαδξαδξφσκδφ
-κδ-->
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Option 1"
             android:id="RB1"/>
-
+<!-- aslfljlhsdlgdls -->
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,4 +35,3 @@
     </RelativeLayout>
 
 </LinearLayout>
-kgkg

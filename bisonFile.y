@@ -18,8 +18,10 @@ void yyerror(const char* s);
 	int integer;
 }
 
-%token <integer> INT 
+%token <integer> INT						"int"
 %token STRING
+%token MATCH_PARENT							"match_parent"
+%token WRAP_CONTENT							"wrap_content"
 %token ASSIGN										"="
 %token START_TAG								"<"
 %token SMALL_CLOSETAG 					"/>"
@@ -116,20 +118,20 @@ button_optional_cont :	 				id_attribute padding_attribute
 										| padding_attribute
 										| %empty
 
-textview :								START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
+textview :					START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
 
-textview_opt : 							id_attribute textColor_attribute
+textview_opt : 			id_attribute textColor_attribute
 										| id_attribute
 										| textColor_attribute
 										| %empty
 
-imageview : 							START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
+imageview : 				START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
 
-imageview_mand : 						mandContent src_attribute
+imageview_mand : 		mandContent src_attribute
 
-progressbar : 							START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
+progressbar : 			START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
 
-progressbar_opt : 						id_attribute max_attribute progress_attribute
+progressbar_opt : 	id_attribute max_attribute progress_attribute
 										| id_attribute max_attribute
 										| id_attribute progress_attribute
 										| id_attribute
@@ -159,11 +161,13 @@ progress_attribute : 					ANDROIDTAG PROGRESS ASSIGN INT
 checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING
 
 orientation_attribute :					ANDROIDTAG ORIENTATION ASSIGN VERTICAL
-										| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+											| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
 
 
-value :									STRING
-										| INT
+value :								WRAP_CONTENT
+											|MATCH_PARENT
+											| INT
+
 
 
 %%
@@ -189,19 +193,10 @@ int main(int argc, char* argv[]) {
         printf("%s: File not found\n", argv[1]);
         return 1;
     }
-		int result = yyparse(); //κάνει συντακτική ανάλυση
-		printf("%d",result);
-		if (result == 0) {
-		    printf("Parsing was successful!\n");
-		    // Perform actions for successful parsing
-		} else {
-		    printf("Parsing encountered an error.\n");
-		    // Handle the parsing error, print error messages, etc.
+		yyparse();
+		if(errors==0){
+		printf("XML file compiled successfully with %d errors!\n", errors);
 		}
-
-	if(errors==0){
-		printf("XML file compiled successfully with 0 errors!\n");
-	}
 
     fclose(yyin);
 
