@@ -47,7 +47,7 @@ WHITESPACE      [ \t]
 "progress"              { return PROGRESS; }
 
 \"                      {BEGIN(VALUE);}
-<VALUE>\"               {BEGIN(INITIAL); /*printf("\nString was here!\n"); return ST_VALUE;*/}
+<VALUE>\"               {BEGIN(INITIAL);}
 <VALUE>"vertical"       { return VERTICAL; }
 <VALUE>"horizontal"     { return HORIZONTAL; }
 <VALUE>{INT}            { yylval.integer=atoi(yytext); return INT;}
@@ -57,9 +57,9 @@ WHITESPACE      [ \t]
 <VALUE><<EOF>>          {yyerror("You've reached the end of file, without closing a string value!\n");}
 
 "<!--"                  {BEGIN(COMMENT);}
-<COMMENT>"-->"          {BEGIN(INITIAL);} //ta comments ta agnooume opote den kanoume return tpt
+<COMMENT>"-->"          {BEGIN(INITIAL);} //comments cannot be tokens we just ignore them , no return statements
 <COMMENT>.              { if(invalid_comment==1){ yyerror("You can't comment here!\n");} }
-<COMMENT>"--"           {yyerror("Illegal arguement '--' used in comment!\n"); BEGIN(COMMENT); exit(EXIT_FAILURE);} //gia na stamatisei to diavasma tou arxeioy
+<COMMENT>"--"           {yyerror("Illegal arguement '--' used in comment!\n"); BEGIN(COMMENT);}
 <COMMENT><<EOF>>        {yyerror("You've reached the end of file, without closing the comment!\n");}
 
 "<"                     { invalid_comment=1; return START_TAG; }

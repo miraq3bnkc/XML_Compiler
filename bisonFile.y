@@ -188,6 +188,10 @@ int main(int argc, char* argv[]) {
 
 	yyparse(); //κάνει συντακτική ανάλυση
 
+	if(errors==0){
+		printf("XML file compiled successfully with 0 errors!\n");
+	}
+
     fclose(yyin);
 	return 0;
 }
