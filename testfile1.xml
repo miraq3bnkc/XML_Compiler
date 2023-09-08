@@ -7,10 +7,11 @@
         android:layout_height="20"
         android:text="Dummy text"
         android:id="TV1"/>
-    <RadioGroup
+    <RadioGroup <!--σκδξωανδσξωσδξφ-->
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-<!--δαδξαδξφσκδφκδ-->
+<!--δαδξαδξφσκδφ
+κδ-->
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
