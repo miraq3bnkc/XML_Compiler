@@ -9,6 +9,9 @@ extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή �
 extern int yylineno;
 int yylex();
 void yyerror(const char* s);
+
+char *radio_button_id[10];
+
 %}
 
 %define parse.error verbose
