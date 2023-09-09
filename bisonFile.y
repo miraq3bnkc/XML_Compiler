@@ -217,7 +217,7 @@ void cmp_check(){
 	if(checked_value!=NULL){
 		for(int i=0;i<rbs-1;i++){
 			if(radio_button_id[i]!=NULL){
-				if(checked_value=radio_button_id[i]){
+				if(strcmp(checked_value,radio_button_id[i])==0){
 					x++;
 					//if x>0 one id matches the checkedButton attribute
 				}
