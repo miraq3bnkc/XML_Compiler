@@ -26,6 +26,13 @@ int line[2];
 int number_value=0;
 void check_number();
 
+//NEW CODE, BE CAREFUL 
+//function and variables for unique id
+void idUnique(char* id);
+char** unique_ids = NULL;  // Array pointer for storing unique IDs
+int unique_id_count = 0;  // Current number of unique IDs
+int unique_ids_size = 0;  // Current size of the array
+
 %}
 
 %define parse.error verbose
@@ -166,7 +173,7 @@ mandContent : 							ANDROIDTAG WIDTH ASSIGN value ANDROIDTAG HEIGHT ASSIGN valu
 
 text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
-id_attribute : 							ANDROIDTAG ID ASSIGN STRING													{save_rb_id($4);}
+id_attribute : 							ANDROIDTAG ID ASSIGN STRING													{save_rb_id($4); idUnique($4);}
 
 padding_attribute : 				ANDROIDTAG PADDING ASSIGN INT
 
@@ -273,6 +280,30 @@ void save_rb_id(char* id){
 	}
 	radio_button_id=(char**)realloc(radio_button_id,(rbs+1)*sizeof(char*));
 }
+
+//NEW CODE, BE CAREFUL
+
+void idUnique(char* id){
+	// Check for duplicate ID
+    for (int i = 0; i < unique_id_count; i++) {
+        if (strcmp(id, unique_ids[i]) == 0) {
+            fprintf(stderr, "Error: Duplicate ID '%s' at line %d\n", id, yylineno);
+            yyerror("Duplicate ID attribute found.");
+            break;
+        }
+    }
+
+    // Resize the array if necessary
+    if (unique_id_count >= unique_ids_size) {
+        unique_ids_size += 10;  // Increase the size by 10
+        unique_ids = (char**)realloc(unique_ids, unique_ids_size * sizeof(char*));
+    }
+
+    // Add the unique ID to the array
+    unique_ids[unique_id_count++] = strdup(id);
+}
+
+//END OF NEW CODE
 
 int main(int argc, char* argv[]) {
 	radio_button_id=(char**)calloc(1,sizeof(char*));
