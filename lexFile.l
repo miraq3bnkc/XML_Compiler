@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "bisonFile.tab.h"
+#include "bisonFile.tab.h" // including tokens from bison
 
 void yyerror(const char* err);
 
@@ -22,7 +22,7 @@ SPECIAL_CHAR    [_\- ]
 DIGIT           [0-9]
 INT             [1-9]{DIGIT}*|0
 STRING          {LETTER}+{SPECIAL_CHAR}*{LETTER}*{DIGIT}*{LETTER}*
-WHITESPACE      [ \t] 
+WHITESPACE      [ \t]
 
 %%
 "LinearLayout"          { return LAYOUT_1; }
@@ -35,8 +35,6 @@ WHITESPACE      [ \t]
 "ProgressBar"           { return PROGRESSBAR; }
 
 "android:"              { return ANDROIDTAG; }
-"layout_width"          { return WIDTH; }
-"layout_height"         { return HEIGHT; }
 "id"                    { return ID;}
 "orientation"           { return ORIENTATION; }
 "text"                  { return TEXT; }
@@ -46,12 +44,16 @@ WHITESPACE      [ \t]
 "checkedButton"         { return CHECK_B; }
 "max"                   { return MAX; }
 "progress"              { return PROGRESS; }
+"layout_width"          { return WIDTH; }
+"layout_height"         { return HEIGHT; }
 "numberOfButtons"       { yylval.integer=atoi(yytext); return NUM_BUTTONS;}
 
 \"                      {BEGIN(VALUE);}
 <VALUE>\"               {BEGIN(INITIAL);}
 <VALUE>"vertical"       { return VERTICAL; }
 <VALUE>"horizontal"     { return HORIZONTAL; }
+<VALUE>"wrap_content"   { return WRAP_CONTENT; }
+<VALUE>"match_parent"   { return MATCH_PARENT; }
 <VALUE>{INT}            { yylval.integer=atoi(yytext); return INT;}
 <VALUE>{STRING}         { yylval.string=strdup(yytext); return STRING;}
 <VALUE>{INT}{STRING}    {yyerror("String value can't start from integer!\n");}

@@ -4,9 +4,13 @@
 #include <string.h>
 #include "bisonFile.tab.h"
 
+int android_process_value; // To store the android:process value
+int android_max_value;    // To store the android:max value
 int errors=0;
 extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
 extern int yylineno;
+extern int yyparse();
+extern YYSTYPE yylval; // Token value
 int yylex();
 void yyerror(const char* s);
 
@@ -31,21 +35,21 @@ void check_number();
 	char* string;
 }
 
-%token <integer> INT 
+%token <integer> INT						"int"
 %token <string> STRING
+%token MATCH_PARENT							"match_parent"
+%token WRAP_CONTENT							"wrap_content"
 %token ASSIGN										"="
-%token START_TAG									"<" 
-%token SMALL_CLOSETAG 								"/>"
-%token ENDTAG 										">"
-%token CLOSETAG										"</"
-
+%token START_TAG								"<"
+%token SMALL_CLOSETAG 					"/>"
+%token ENDTAG 									">"
+%token CLOSETAG									"</"
 %token LAYOUT_1 LAYOUT_2
-%token RGROUP										
+%token RGROUP
 %token TEXTVIEW IMAGEVIEW
-%token BUTTON										
+%token BUTTON
 %token RBUTTON
 %token PROGRESSBAR
-
 %token ANDROIDTAG
 %token WIDTH HEIGHT
 %token ID
@@ -67,20 +71,22 @@ void check_number();
 
 %%
 
-RootElement : 							LinearElement
+RootElement : 			LinearElement
 										| RelativeElement
-										;
 
-LinearElement : 						LinearStartTag elements LinearEndTag
 
-LinearStartTag : 						START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
+LinearElement : 		LinearStartTag elements LinearEndTag
+										|LinearStartTag elements LinearEndTag T_EOF {printf("End of file\n");}
+
+
+LinearStartTag : 		START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
 
 linear_optional : 						id_attribute orientation_attribute
-										| id_attribute 
+										| id_attribute
 										| orientation_attribute
 										| %empty
 
-LinearEndTag : 							CLOSETAG LAYOUT_1 ENDTAG
+LinearEndTag : 			CLOSETAG LAYOUT_1 ENDTAG
 
 elements : 								 RootElement elements
 										|  RadioGroup elements
@@ -88,12 +94,12 @@ elements : 								 RootElement elements
 										|  imageview elements
 										|  buttonElement elements
 										|  progressbar elements
-										|  RootElement 
-										|  RadioGroup 
-										|  textview 
-										|  imageview 
-										|  buttonElement 
-										|  progressbar 
+										|  RootElement
+										|  RadioGroup
+										|  textview
+										|  imageview
+										|  buttonElement
+										|  progressbar
 
 RelativeElement : 						RelativeStartTag relative_elements RelativeEndTag
 
@@ -121,31 +127,31 @@ radiogroup_opt : 						id_attribute checkedbutton_attribute
 RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG												{ cmp_check(); check_number(); rb_state=0; rbs=1;}
 																											/*initialize values as before*/
 radio_element : 						 RadioButton radio_element													
-         								| RadioButton 																
+         								| RadioButton																
 
 buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
 button_mandatory_cont : 				mandContent text_attribute
 
 button_optional_cont :	 				id_attribute padding_attribute
-										| id_attribute 
+										| id_attribute
 										| padding_attribute
 										| %empty
 
-textview :								START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
+textview :					START_TAG TEXTVIEW button_mandatory_cont textview_opt SMALL_CLOSETAG
 
-textview_opt : 							id_attribute textColor_attribute
+textview_opt : 			id_attribute textColor_attribute
 										| id_attribute
 										| textColor_attribute
 										| %empty
 
-imageview : 							START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
+imageview : 				START_TAG IMAGEVIEW imageview_mand button_optional_cont SMALL_CLOSETAG
 
-imageview_mand : 						mandContent src_attribute
+imageview_mand : 		mandContent src_attribute
 
-progressbar : 							START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
+progressbar : 			START_TAG PROGRESSBAR mandContent progressbar_opt SMALL_CLOSETAG
 
-progressbar_opt : 						id_attribute max_attribute progress_attribute
+progressbar_opt : 	id_attribute max_attribute progress_attribute
 										| id_attribute max_attribute
 										| id_attribute progress_attribute
 										| id_attribute
@@ -162,25 +168,45 @@ text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
 id_attribute : 							ANDROIDTAG ID ASSIGN STRING													{save_rb_id($4);}
 
-padding_attribute : 					ANDROIDTAG PADDING ASSIGN INT
+padding_attribute : 				ANDROIDTAG PADDING ASSIGN INT
 
-textColor_attribute :					ANDROIDTAG TEXTCOLOR ASSIGN STRING
+textColor_attribute :				ANDROIDTAG TEXTCOLOR ASSIGN STRING
 
 src_attribute :							ANDROIDTAG SOURCE ASSIGN STRING
 
-max_attribute : 						ANDROIDTAG MAX ASSIGN INT
+max_attribute : 						ANDROIDTAG MAX ASSIGN max_value
 
-progress_attribute : 					ANDROIDTAG PROGRESS ASSIGN INT
+max_value:									INT
+														{
+															android_max_value = $1;
+														}
 
-checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING											{checked_value=$4; line[0]=yylineno;}				
+progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN progress_value
+														{
+																if (android_process_value < 0 || android_process_value > android_max_value && android_max_value!=0) {
+																		fprintf(stderr, "Error: android:process value out of range %d\n",android_max_value );
+																		exit(1);
+																}
 
-orientation_attribute :					ANDROIDTAG ORIENTATION ASSIGN VERTICAL
-										| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+														};
+
+progress_value:						  INT
+												    {
+												        android_process_value = $1;
+												    }
+
+
+checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING											{checked_value=$4; line[0]=yylineno;}				
+
+orientation_attribute :			ANDROIDTAG ORIENTATION ASSIGN VERTICAL
+														| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
 
 numofButtons_attribute :				ANDROIDTAG NUM_BUTTONS ASSIGN INT											{ line[1]=yylineno; number_value=$4;}
 
-value :									STRING
-										| INT
+value :											WRAP_CONTENT
+														| MATCH_PARENT
+														| INT
+
 
 
 %%
@@ -257,13 +283,12 @@ int main(int argc, char* argv[]) {
         printf("%s: File not found\n", argv[1]);
         return 1;
     }
-
-	yyparse(); //κάνει συντακτική ανάλυση
-
-	if(errors==0){
-		printf("XML file compiled successfully with 0 errors!\n");
-	}
+		yyparse();
+		if(errors==0){
+		printf("XML file compiled successfully with %d errors!\n", errors);
+		}
 
     fclose(yyin);
+
 	return 0;
 }
