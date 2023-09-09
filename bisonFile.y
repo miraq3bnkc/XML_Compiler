@@ -4,10 +4,13 @@
 #include <string.h>
 #include "bisonFile.tab.h"
 
+int android_process_value; // To store the android:process value
+int android_max_value;    // To store the android:max value
 int errors=0;
 extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
 extern int yylineno;
 extern int yyparse();
+extern YYSTYPE yylval; // Token value
 int yylex();
 void yyerror(const char* s);
 %}
@@ -27,7 +30,6 @@ void yyerror(const char* s);
 %token SMALL_CLOSETAG 					"/>"
 %token ENDTAG 									">"
 %token CLOSETAG									"</"
-%token PROGRESS_VALUE
 %token LAYOUT_1 LAYOUT_2
 %token RGROUP
 %token TEXTVIEW IMAGEVIEW
@@ -153,11 +155,26 @@ textColor_attribute :				ANDROIDTAG TEXTCOLOR ASSIGN STRING
 
 src_attribute :							ANDROIDTAG SOURCE ASSIGN STRING
 
-max_attribute : 						ANDROIDTAG MAX ASSIGN INT
+max_attribute : 						ANDROIDTAG MAX ASSIGN max_value
+
+max_value:									INT
+														{
+															android_max_value = $1;
+														}
 
 progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN progress_value
+														{
+																if (android_process_value < 0 || android_process_value > android_max_value && android_max_value!=0) {
+																		fprintf(stderr, "Error: android:process value out of range %d\n",android_max_value );
+																		exit(1);
+																}
 
-progress_value:						//sfjan help
+														};
+
+progress_value:						  INT
+												    {
+												        android_process_value = $1;
+												    }
 
 
 checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING

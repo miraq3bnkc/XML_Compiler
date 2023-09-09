@@ -7,6 +7,13 @@
         android:layout_height="20"
         android:text="Dummy text"
         android:id="TV1"/>
+    <ProgressBar
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:id="bar"
+     android:max="4"
+     android:progress="3"/>
+
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -32,6 +39,7 @@
             android:layout_height="wrap_content"
             android:src="image_name"
             android:padding="50"/>
+
     </RelativeLayout>
 
 </LinearLayout>
