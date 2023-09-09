@@ -63,28 +63,29 @@ extern int yydebug;
     SMALL_CLOSETAG = 264,          /* "/>"  */
     ENDTAG = 265,                  /* ">"  */
     CLOSETAG = 266,                /* "</"  */
-    LAYOUT_1 = 267,                /* LAYOUT_1  */
-    LAYOUT_2 = 268,                /* LAYOUT_2  */
-    RGROUP = 269,                  /* RGROUP  */
-    TEXTVIEW = 270,                /* TEXTVIEW  */
-    IMAGEVIEW = 271,               /* IMAGEVIEW  */
-    BUTTON = 272,                  /* BUTTON  */
-    RBUTTON = 273,                 /* RBUTTON  */
-    PROGRESSBAR = 274,             /* PROGRESSBAR  */
-    ANDROIDTAG = 275,              /* ANDROIDTAG  */
-    WIDTH = 276,                   /* WIDTH  */
-    HEIGHT = 277,                  /* HEIGHT  */
-    ID = 278,                      /* ID  */
-    ORIENTATION = 279,             /* ORIENTATION  */
-    VERTICAL = 280,                /* VERTICAL  */
-    HORIZONTAL = 281,              /* HORIZONTAL  */
-    TEXT = 282,                    /* TEXT  */
-    TEXTCOLOR = 283,               /* TEXTCOLOR  */
-    SOURCE = 284,                  /* SOURCE  */
-    PADDING = 285,                 /* PADDING  */
-    CHECK_B = 286,                 /* CHECK_B  */
-    MAX = 287,                     /* MAX  */
-    PROGRESS = 288                 /* PROGRESS  */
+    PROGRESS_VALUE = 267,          /* PROGRESS_VALUE  */
+    LAYOUT_1 = 268,                /* LAYOUT_1  */
+    LAYOUT_2 = 269,                /* LAYOUT_2  */
+    RGROUP = 270,                  /* RGROUP  */
+    TEXTVIEW = 271,                /* TEXTVIEW  */
+    IMAGEVIEW = 272,               /* IMAGEVIEW  */
+    BUTTON = 273,                  /* BUTTON  */
+    RBUTTON = 274,                 /* RBUTTON  */
+    PROGRESSBAR = 275,             /* PROGRESSBAR  */
+    ANDROIDTAG = 276,              /* ANDROIDTAG  */
+    WIDTH = 277,                   /* WIDTH  */
+    HEIGHT = 278,                  /* HEIGHT  */
+    ID = 279,                      /* ID  */
+    ORIENTATION = 280,             /* ORIENTATION  */
+    VERTICAL = 281,                /* VERTICAL  */
+    HORIZONTAL = 282,              /* HORIZONTAL  */
+    TEXT = 283,                    /* TEXT  */
+    TEXTCOLOR = 284,               /* TEXTCOLOR  */
+    SOURCE = 285,                  /* SOURCE  */
+    PADDING = 286,                 /* PADDING  */
+    CHECK_B = 287,                 /* CHECK_B  */
+    MAX = 288,                     /* MAX  */
+    PROGRESS = 289                 /* PROGRESS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -97,7 +98,7 @@ union YYSTYPE
 
 	int integer;
 
-#line 101 "bisonFile.tab.h"
+#line 102 "bisonFile.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

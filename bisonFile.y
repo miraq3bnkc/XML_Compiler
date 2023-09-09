@@ -27,14 +27,13 @@ void yyerror(const char* s);
 %token SMALL_CLOSETAG 					"/>"
 %token ENDTAG 									">"
 %token CLOSETAG									"</"
-
+%token PROGRESS_VALUE
 %token LAYOUT_1 LAYOUT_2
 %token RGROUP
 %token TEXTVIEW IMAGEVIEW
 %token BUTTON
 %token RBUTTON
 %token PROGRESSBAR
-
 %token ANDROIDTAG
 %token WIDTH HEIGHT
 %token ID
@@ -148,25 +147,28 @@ text_attribute : 						ANDROIDTAG TEXT ASSIGN STRING
 
 id_attribute : 							ANDROIDTAG ID ASSIGN STRING
 
-padding_attribute : 					ANDROIDTAG PADDING ASSIGN INT
+padding_attribute : 				ANDROIDTAG PADDING ASSIGN INT
 
-textColor_attribute :					ANDROIDTAG TEXTCOLOR ASSIGN STRING
+textColor_attribute :				ANDROIDTAG TEXTCOLOR ASSIGN STRING
 
 src_attribute :							ANDROIDTAG SOURCE ASSIGN STRING
 
 max_attribute : 						ANDROIDTAG MAX ASSIGN INT
 
-progress_attribute : 					ANDROIDTAG PROGRESS ASSIGN INT
+progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN progress_value
 
-checkedbutton_attribute : 				ANDROIDTAG CHECK_B ASSIGN STRING
-
-orientation_attribute :					ANDROIDTAG ORIENTATION ASSIGN VERTICAL
-											| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+progress_value:						//sfjan help
 
 
-value :								WRAP_CONTENT
-											|MATCH_PARENT
-											| INT
+checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING
+
+orientation_attribute :			ANDROIDTAG ORIENTATION ASSIGN VERTICAL
+														| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
+
+
+value :											WRAP_CONTENT
+														| MATCH_PARENT
+														| INT
 
 
 
