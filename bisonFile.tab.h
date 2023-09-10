@@ -84,7 +84,8 @@ extern int yydebug;
     PADDING = 285,                 /* PADDING  */
     CHECK_B = 286,                 /* CHECK_B  */
     MAX = 287,                     /* MAX  */
-    PROGRESS = 288                 /* PROGRESS  */
+    PROGRESS = 288,                /* PROGRESS  */
+    NUM_BUTTONS = 289              /* NUM_BUTTONS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -93,11 +94,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 20 "bisonFile.y"
+#line 40 "bisonFile.y"
 
 	int integer;
+	char* string;
 
-#line 101 "bisonFile.tab.h"
+#line 103 "bisonFile.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

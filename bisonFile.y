@@ -18,15 +18,15 @@ void yyerror(const char* s);
 void cmp_check();
 void save_rb_id(char* id);
 int rbs=1; //number of radio buttons (radiogroup must always contain at leat one , so we initialize it to 1)
-int rb_state=0; //state=1 for when we are defining a radiogroup else state=0  
+int rb_state=0; //state=1 for when we are defining a radiogroup else state=0
 char **radio_button_id;
-char* checked_value; 
+char* checked_value;
 
 int line[2];
 int number_value=0;
 void check_number();
 
-//NEW CODE, BE CAREFUL 
+//NEW CODE, BE CAREFUL
 //function and variables for unique id
 void idUnique(char* id);
 char** unique_ids = NULL;  // Array pointer for storing unique IDs
@@ -132,8 +132,8 @@ radiogroup_opt : 						id_attribute checkedbutton_attribute
 
 RadioGroupEnd : 						CLOSETAG RGROUP ENDTAG												{ cmp_check(); check_number(); rb_state=0; rbs=1;}
 																											/*initialize values as before*/
-radio_element : 						 RadioButton radio_element													
-         								| RadioButton																
+radio_element : 						 RadioButton radio_element
+         								| RadioButton
 
 buttonElement : 						START_TAG BUTTON button_mandatory_cont button_optional_cont SMALL_CLOSETAG
 
@@ -202,7 +202,7 @@ progress_value:						  INT
 												    }
 
 
-checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING											{checked_value=$4; line[0]=yylineno;}				
+checkedbutton_attribute : 	ANDROIDTAG CHECK_B ASSIGN STRING											{checked_value=$4; line[0]=yylineno;}
 
 orientation_attribute :			ANDROIDTAG ORIENTATION ASSIGN VERTICAL
 														| ANDROIDTAG ORIENTATION ASSIGN HORIZONTAL
@@ -253,7 +253,7 @@ void cmp_check(){
 					x++;
 					//if x>0 one id matches the checkedButton attribute
 				}
-				y++; 
+				y++;
 				//if y>0 at least one id attribute was not null
 			}
 		}
@@ -272,7 +272,7 @@ void save_rb_id(char* id){
 		/*do nothing*/
 	}
 	else if(rb_state==1){
-		radio_button_id[rbs-1]=id; 
+		radio_button_id[rbs-1]=id;
 	}
 	else{
 		printf("some exception occured\n");

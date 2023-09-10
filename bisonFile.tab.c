@@ -84,7 +84,27 @@ extern YYSTYPE yylval; // Token value
 int yylex();
 void yyerror(const char* s);
 
-#line 88 "bisonFile.tab.c"
+//FUNCTIONS AND VALUES FOR COMPARING CHECKEDBUTTON WITH RADIOBUTTON IDS
+void cmp_check();
+void save_rb_id(char* id);
+int rbs=1; //number of radio buttons (radiogroup must always contain at leat one , so we initialize it to 1)
+int rb_state=0; //state=1 for when we are defining a radiogroup else state=0
+char **radio_button_id;
+char* checked_value;
+
+int line[2];
+int number_value=0;
+void check_number();
+
+//NEW CODE, BE CAREFUL
+//function and variables for unique id
+void idUnique(char* id);
+char** unique_ids = NULL;  // Array pointer for storing unique IDs
+int unique_id_count = 0;  // Current number of unique IDs
+int unique_ids_size = 0;  // Current size of the array
+
+
+#line 108 "bisonFile.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -146,46 +166,49 @@ enum yysymbol_kind_t
   YYSYMBOL_CHECK_B = 31,                   /* CHECK_B  */
   YYSYMBOL_MAX = 32,                       /* MAX  */
   YYSYMBOL_PROGRESS = 33,                  /* PROGRESS  */
-  YYSYMBOL_YYACCEPT = 34,                  /* $accept  */
-  YYSYMBOL_RootElement = 35,               /* RootElement  */
-  YYSYMBOL_LinearElement = 36,             /* LinearElement  */
-  YYSYMBOL_LinearStartTag = 37,            /* LinearStartTag  */
-  YYSYMBOL_linear_optional = 38,           /* linear_optional  */
-  YYSYMBOL_LinearEndTag = 39,              /* LinearEndTag  */
-  YYSYMBOL_elements = 40,                  /* elements  */
-  YYSYMBOL_RelativeElement = 41,           /* RelativeElement  */
-  YYSYMBOL_RelativeStartTag = 42,          /* RelativeStartTag  */
-  YYSYMBOL_root_optional = 43,             /* root_optional  */
-  YYSYMBOL_RelativeEndTag = 44,            /* RelativeEndTag  */
-  YYSYMBOL_relative_elements = 45,         /* relative_elements  */
-  YYSYMBOL_RadioGroup = 46,                /* RadioGroup  */
-  YYSYMBOL_RadioGroupStart = 47,           /* RadioGroupStart  */
-  YYSYMBOL_radiogroup_opt = 48,            /* radiogroup_opt  */
-  YYSYMBOL_RadioGroupEnd = 49,             /* RadioGroupEnd  */
-  YYSYMBOL_radio_element = 50,             /* radio_element  */
-  YYSYMBOL_buttonElement = 51,             /* buttonElement  */
-  YYSYMBOL_button_mandatory_cont = 52,     /* button_mandatory_cont  */
-  YYSYMBOL_button_optional_cont = 53,      /* button_optional_cont  */
-  YYSYMBOL_textview = 54,                  /* textview  */
-  YYSYMBOL_textview_opt = 55,              /* textview_opt  */
-  YYSYMBOL_imageview = 56,                 /* imageview  */
-  YYSYMBOL_imageview_mand = 57,            /* imageview_mand  */
-  YYSYMBOL_progressbar = 58,               /* progressbar  */
-  YYSYMBOL_progressbar_opt = 59,           /* progressbar_opt  */
-  YYSYMBOL_RadioButton = 60,               /* RadioButton  */
-  YYSYMBOL_mandContent = 61,               /* mandContent  */
-  YYSYMBOL_text_attribute = 62,            /* text_attribute  */
-  YYSYMBOL_id_attribute = 63,              /* id_attribute  */
-  YYSYMBOL_padding_attribute = 64,         /* padding_attribute  */
-  YYSYMBOL_textColor_attribute = 65,       /* textColor_attribute  */
-  YYSYMBOL_src_attribute = 66,             /* src_attribute  */
-  YYSYMBOL_max_attribute = 67,             /* max_attribute  */
-  YYSYMBOL_max_value = 68,                 /* max_value  */
-  YYSYMBOL_progress_attribute = 69,        /* progress_attribute  */
-  YYSYMBOL_progress_value = 70,            /* progress_value  */
-  YYSYMBOL_checkedbutton_attribute = 71,   /* checkedbutton_attribute  */
-  YYSYMBOL_orientation_attribute = 72,     /* orientation_attribute  */
-  YYSYMBOL_value = 73                      /* value  */
+  YYSYMBOL_NUM_BUTTONS = 34,               /* NUM_BUTTONS  */
+  YYSYMBOL_YYACCEPT = 35,                  /* $accept  */
+  YYSYMBOL_RootElement = 36,               /* RootElement  */
+  YYSYMBOL_LinearElement = 37,             /* LinearElement  */
+  YYSYMBOL_LinearStartTag = 38,            /* LinearStartTag  */
+  YYSYMBOL_linear_optional = 39,           /* linear_optional  */
+  YYSYMBOL_LinearEndTag = 40,              /* LinearEndTag  */
+  YYSYMBOL_elements = 41,                  /* elements  */
+  YYSYMBOL_RelativeElement = 42,           /* RelativeElement  */
+  YYSYMBOL_RelativeStartTag = 43,          /* RelativeStartTag  */
+  YYSYMBOL_root_optional = 44,             /* root_optional  */
+  YYSYMBOL_RelativeEndTag = 45,            /* RelativeEndTag  */
+  YYSYMBOL_relative_elements = 46,         /* relative_elements  */
+  YYSYMBOL_RadioGroup = 47,                /* RadioGroup  */
+  YYSYMBOL_RadioGroupStart = 48,           /* RadioGroupStart  */
+  YYSYMBOL_radiogroup_mand = 49,           /* radiogroup_mand  */
+  YYSYMBOL_radiogroup_opt = 50,            /* radiogroup_opt  */
+  YYSYMBOL_RadioGroupEnd = 51,             /* RadioGroupEnd  */
+  YYSYMBOL_radio_element = 52,             /* radio_element  */
+  YYSYMBOL_buttonElement = 53,             /* buttonElement  */
+  YYSYMBOL_button_mandatory_cont = 54,     /* button_mandatory_cont  */
+  YYSYMBOL_button_optional_cont = 55,      /* button_optional_cont  */
+  YYSYMBOL_textview = 56,                  /* textview  */
+  YYSYMBOL_textview_opt = 57,              /* textview_opt  */
+  YYSYMBOL_imageview = 58,                 /* imageview  */
+  YYSYMBOL_imageview_mand = 59,            /* imageview_mand  */
+  YYSYMBOL_progressbar = 60,               /* progressbar  */
+  YYSYMBOL_progressbar_opt = 61,           /* progressbar_opt  */
+  YYSYMBOL_RadioButton = 62,               /* RadioButton  */
+  YYSYMBOL_mandContent = 63,               /* mandContent  */
+  YYSYMBOL_text_attribute = 64,            /* text_attribute  */
+  YYSYMBOL_id_attribute = 65,              /* id_attribute  */
+  YYSYMBOL_padding_attribute = 66,         /* padding_attribute  */
+  YYSYMBOL_textColor_attribute = 67,       /* textColor_attribute  */
+  YYSYMBOL_src_attribute = 68,             /* src_attribute  */
+  YYSYMBOL_max_attribute = 69,             /* max_attribute  */
+  YYSYMBOL_max_value = 70,                 /* max_value  */
+  YYSYMBOL_progress_attribute = 71,        /* progress_attribute  */
+  YYSYMBOL_progress_value = 72,            /* progress_value  */
+  YYSYMBOL_checkedbutton_attribute = 73,   /* checkedbutton_attribute  */
+  YYSYMBOL_orientation_attribute = 74,     /* orientation_attribute  */
+  YYSYMBOL_numofButtons_attribute = 75,    /* numofButtons_attribute  */
+  YYSYMBOL_value = 76                      /* value  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -513,19 +536,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   168
+#define YYLAST   165
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  34
+#define YYNTOKENS  35
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  40
+#define YYNNTS  42
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  76
+#define YYNRULES  78
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  151
+#define YYNSTATES  157
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   288
+#define YYMAXUTOK   289
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -567,21 +590,21 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    32,    33
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    58,    61,    64,    66,    67,    68,    69,
-      71,    73,    74,    75,    76,    77,    78,    79,    80,    81,
-      82,    83,    84,    86,    88,    90,    91,    93,    95,    96,
-      98,   100,   102,   103,   104,   105,   107,   109,   110,   112,
-     114,   116,   117,   118,   119,   121,   123,   124,   125,   126,
-     128,   130,   132,   134,   135,   136,   137,   138,   139,   140,
-     142,   145,   147,   149,   151,   153,   155,   157,   159,   164,
-     173,   179,   181,   182,   185,   186,   187
+       0,    81,    81,    82,    85,    88,    90,    91,    92,    93,
+      95,    97,    98,    99,   100,   101,   102,   103,   104,   105,
+     106,   107,   108,   110,   112,   114,   115,   117,   119,   120,
+     122,   124,   126,   128,   129,   130,   131,   133,   135,   136,
+     138,   140,   142,   143,   144,   145,   147,   149,   150,   151,
+     152,   154,   156,   158,   160,   161,   162,   163,   164,   165,
+     166,   168,   171,   173,   175,   177,   179,   181,   183,   185,
+     190,   199,   205,   207,   208,   210,   212,   213,   214
 };
 #endif
 
@@ -603,18 +626,18 @@ static const char *const yytname[] =
   "IMAGEVIEW", "BUTTON", "RBUTTON", "PROGRESSBAR", "ANDROIDTAG", "WIDTH",
   "HEIGHT", "ID", "ORIENTATION", "VERTICAL", "HORIZONTAL", "TEXT",
   "TEXTCOLOR", "SOURCE", "PADDING", "CHECK_B", "MAX", "PROGRESS",
-  "$accept", "RootElement", "LinearElement", "LinearStartTag",
-  "linear_optional", "LinearEndTag", "elements", "RelativeElement",
-  "RelativeStartTag", "root_optional", "RelativeEndTag",
-  "relative_elements", "RadioGroup", "RadioGroupStart", "radiogroup_opt",
-  "RadioGroupEnd", "radio_element", "buttonElement",
+  "NUM_BUTTONS", "$accept", "RootElement", "LinearElement",
+  "LinearStartTag", "linear_optional", "LinearEndTag", "elements",
+  "RelativeElement", "RelativeStartTag", "root_optional", "RelativeEndTag",
+  "relative_elements", "RadioGroup", "RadioGroupStart", "radiogroup_mand",
+  "radiogroup_opt", "RadioGroupEnd", "radio_element", "buttonElement",
   "button_mandatory_cont", "button_optional_cont", "textview",
   "textview_opt", "imageview", "imageview_mand", "progressbar",
   "progressbar_opt", "RadioButton", "mandContent", "text_attribute",
   "id_attribute", "padding_attribute", "textColor_attribute",
   "src_attribute", "max_attribute", "max_value", "progress_attribute",
   "progress_value", "checkedbutton_attribute", "orientation_attribute",
-  "value", YY_NULLPTR
+  "numofButtons_attribute", "value", YY_NULLPTR
 };
 
 static const char *
@@ -624,7 +647,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-87)
+#define YYPACT_NINF (-90)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -638,22 +661,22 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       0,     7,    26,   -87,    22,   -87,    22,    32,    32,   -87,
-      24,    22,    42,    22,    46,    22,    22,    22,    22,   -87,
-      44,    35,    37,    38,    32,    32,    32,    32,    32,   -87,
-      47,   -87,   -87,    43,    49,    46,   -87,   -87,   -87,   -87,
-      50,   -87,    55,    23,    54,    45,   -87,    48,    56,   -87,
-      52,    53,    57,    58,    59,    58,    60,    64,    32,    61,
-     -87,   -87,    66,    39,    62,    63,   -87,    65,   -87,   -87,
-     -13,    71,    67,   -87,    -1,    73,    68,   -87,    40,   -87,
-      -6,    74,    70,   -87,    69,   -87,    75,   -17,    76,    72,
-     -87,   -87,   -87,    38,    81,   -87,   -87,   -87,   -87,    77,
-      82,    25,    86,   -87,    78,   -87,    87,   -87,    79,   -87,
-      88,    89,   -87,    80,   -87,    92,   -87,    93,    94,   -87,
-      16,    83,   -87,    95,   -87,    84,   -87,   -87,   -87,    98,
-     101,   104,   108,   109,   111,   112,    85,   -87,   -87,   105,
-     -87,   -87,   -87,   -87,   -87,   -87,   -87,   -87,   -87,    39,
-     -87
+       0,     7,    29,   -90,    18,   -90,    18,    11,    11,   -90,
+      25,    18,    42,    18,    46,    18,    18,    18,    18,   -90,
+      44,    35,    37,    38,    11,    11,    11,    11,    11,   -90,
+      47,   -90,   -90,    43,    49,    46,   -90,   -90,   -90,   -90,
+      50,   -90,    55,    24,    54,    45,   -90,    48,    56,   -90,
+      52,    53,    57,    58,    59,    60,    59,    61,    64,    11,
+      62,   -90,   -90,    65,    40,    63,    75,   -90,    66,   -90,
+     -90,   -13,    73,    67,   -90,    33,   -90,    -1,    76,    68,
+     -90,    41,   -90,    -6,    77,    69,   -90,    70,   -90,    82,
+     -17,    83,    74,   -90,   -90,   -90,    38,    85,   -90,   -90,
+     -90,   -90,    78,    80,    26,    86,   -90,    71,   -90,    89,
+      90,   -90,    72,   -90,    94,    96,   -90,    39,   -90,    97,
+     -90,    98,    99,   -90,    17,    87,   -90,   100,   -90,    88,
+     -90,   -90,   -90,   104,   108,   109,   110,   112,   113,   115,
+     116,    79,   -90,   -90,   114,   -90,   -90,   -90,   -90,   -90,
+     -90,   -90,   -90,   -90,   -90,    40,   -90
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -664,37 +687,39 @@ static const yytype_int8 yydefact[] =
        0,     0,     0,     2,     0,     3,    29,     0,     0,     1,
        0,    17,     0,    18,     0,    21,    19,    20,    22,    28,
        0,     0,     9,    26,     0,     0,     0,     0,     0,    11,
-       0,     4,    12,     0,     0,    38,    15,    13,    14,    16,
+       0,     4,    12,     0,     0,    39,    15,    13,    14,    16,
        0,    23,     0,     0,     0,     7,     8,     0,     0,    25,
-      35,    49,     0,    44,     0,    44,    59,     0,     0,     0,
-      30,    37,     0,     0,     0,     0,     5,     0,     6,    24,
-       0,     0,    33,    34,     0,     0,    47,    48,     0,    40,
-       0,     0,    42,    43,     0,    51,     0,     0,     0,    56,
-      57,    58,    10,    26,     0,    27,    76,    75,    74,     0,
-       0,     0,     0,    31,     0,    32,     0,    45,     0,    46,
-       0,     0,    50,     0,    41,     0,    39,     0,     0,    52,
-       0,    54,    55,     0,    36,     0,    63,    72,    73,     0,
-       0,     0,     0,     0,     0,     0,     0,    53,    60,     0,
-      71,    65,    62,    64,    66,    68,    67,    70,    69,     0,
-      61
+      36,     0,    50,     0,    45,     0,    45,    60,     0,     0,
+       0,    30,    38,     0,     0,     0,     0,     5,     0,     6,
+      24,     0,     0,    34,    35,     0,    32,     0,     0,    48,
+      49,     0,    41,     0,     0,    43,    44,     0,    52,     0,
+       0,     0,    57,    58,    59,    10,    26,     0,    27,    78,
+      77,    76,     0,     0,     0,     0,    31,     0,    33,     0,
+       0,    46,     0,    47,     0,     0,    51,     0,    42,     0,
+      40,     0,     0,    53,     0,    55,    56,     0,    37,     0,
+      64,    73,    74,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    54,    61,     0,    72,    75,    66,    63,    65,
+      67,    69,    68,    71,    70,     0,    62
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -87,   116,   -87,   -87,   -87,   -87,    -4,   -87,   -87,   -25,
-     -87,   -87,   -87,   -87,   -87,   -87,    90,   -87,   -26,    91,
-     -87,   -87,   -87,   -87,   -87,   -87,   -87,    -3,   -87,   -22,
-      41,    51,   -87,    28,   -87,   -86,   -87,    96,    97,   -30
+     -90,   120,   -90,   -90,   -90,   -90,    -4,   -90,   -90,    20,
+     -90,   -90,   -90,   -90,   -90,   -90,   -90,    91,   -90,   -26,
+      81,   -90,   -90,   -90,   -90,   -90,   -90,   -90,    -3,   -90,
+     -22,    51,    84,   -90,    30,   -90,   -89,   -90,    92,    93,
+     -90,   -32
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
        0,    11,     3,     4,    44,    31,    12,     5,     6,    48,
-      41,    20,    13,    14,    71,    60,    34,    15,    51,    81,
-      16,    75,    17,    53,    18,    88,    35,    52,    79,    49,
-      83,    77,    85,    90,   146,    91,   148,    73,    46,    99
+      41,    20,    13,    14,    50,    72,    61,    34,    15,    52,
+      84,    16,    78,    17,    54,    18,    91,    35,    53,    82,
+      49,    86,    80,    88,    93,   152,    94,   154,    74,    46,
+      76,   102
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -702,79 +727,79 @@ static const yytype_uint8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      45,    55,    19,   122,    22,    23,    64,    29,     1,    32,
-      64,    36,    37,    38,    39,   117,   118,    64,   102,     7,
-       8,    50,    64,    54,   111,    56,     9,   106,    72,    76,
-      10,    82,    93,    82,    89,   137,     7,     8,    24,    25,
-      26,    27,    96,    28,    97,    98,    64,    65,   117,   118,
-     127,   128,    21,    30,    33,    40,    42,    43,    47,    57,
-      59,    58,    63,    62,    66,    67,    69,   110,   123,   100,
-     101,    64,    70,    74,    92,    94,    95,    78,    80,    84,
-      87,   103,   107,   112,   116,   119,   126,   104,   108,    65,
-     113,   124,   120,   129,   130,   131,   132,   125,   115,   133,
-     134,   135,   140,   136,   138,   141,   139,   106,   142,   102,
-     111,   143,   149,   144,   145,   147,     2,   121,   118,   150,
-       0,     0,     0,   114,     0,    61,     0,   109,     0,     0,
+      45,    56,    19,   126,    22,    23,    65,    29,     1,    32,
+      65,    36,    37,    38,    39,   121,   122,    65,   105,     7,
+       8,    51,    65,    55,   115,    57,    10,   110,    73,     9,
+      79,    21,    85,    96,    85,    92,   142,     7,     8,    24,
+      25,    26,    27,    99,    28,   100,   101,    65,    66,   121,
+     122,   131,   132,    30,    33,    40,    42,    43,    47,    58,
+      60,    59,    64,    63,    67,    68,    70,   109,   114,   115,
+     103,    65,    71,    75,    95,    98,    97,    77,    81,    83,
+      87,    90,   104,   106,   130,   111,   116,   107,   112,   117,
+      66,   120,   123,   133,   124,   128,   134,   135,   129,   119,
+     110,   136,   105,   137,   138,   139,   140,   141,   145,   143,
+     144,   146,   122,   147,   148,   149,   127,   150,   151,   153,
+       2,   155,   125,   156,     0,     0,    62,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,   118,    89,    69,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    68,     0,     0,     0,    86,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,   105
+       0,     0,     0,   113,     0,   108
 };
 
 static const yytype_int16 yycheck[] =
 {
-      22,    27,     6,    89,     7,     8,    23,    11,     8,    13,
+      22,    27,     6,    92,     7,     8,    23,    11,     8,    13,
       23,    15,    16,    17,    18,    32,    33,    23,    31,    12,
-      13,    24,    23,    26,    30,    28,     0,    28,    50,    51,
-       8,    53,    58,    55,    56,   121,    12,    13,    14,    15,
-      16,    17,     3,    19,     5,     6,    23,    24,    32,    33,
-      25,    26,    20,    11,     8,    11,    21,    20,    20,    12,
-      11,    18,     7,    13,    10,    20,    10,    27,    93,     7,
-       7,    23,    20,    20,    10,    14,    10,    20,    20,    20,
-      20,    10,     9,     9,     9,     9,     4,    20,    20,    24,
-      20,    10,    20,     7,     7,     7,     7,    20,    29,     7,
-       7,     7,     4,    20,     9,     4,    22,    28,     4,    31,
-      30,     3,     7,     4,     3,     3,     0,    89,    33,   149,
-      -1,    -1,    -1,    82,    -1,    35,    -1,    76,    -1,    -1,
+      13,    24,    23,    26,    30,    28,     8,    28,    50,     0,
+      52,    20,    54,    59,    56,    57,   125,    12,    13,    14,
+      15,    16,    17,     3,    19,     5,     6,    23,    24,    32,
+      33,    25,    26,    11,     8,    11,    21,    20,    20,    12,
+      11,    18,     7,    13,    10,    20,    10,    34,    27,    30,
+       7,    23,    20,    20,    10,    10,    14,    20,    20,    20,
+      20,    20,     7,    10,     4,     9,     9,    20,    20,    20,
+      24,     9,     9,     7,    20,    10,     7,     7,    20,    29,
+      28,     7,    31,     7,     7,     7,     7,    20,     4,     9,
+      22,     3,    33,     4,     4,     3,    96,     4,     3,     3,
+       0,     7,    92,   155,    -1,    -1,    35,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    85,    56,    45,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    45,    -1,    -1,    -1,    55,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    72
+      -1,    -1,    -1,    79,    -1,    73
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     8,    35,    36,    37,    41,    42,    12,    13,     0,
-       8,    35,    40,    46,    47,    51,    54,    56,    58,    40,
-      45,    20,    61,    61,    14,    15,    16,    17,    19,    40,
-      11,    39,    40,     8,    50,    60,    40,    40,    40,    40,
-      11,    44,    21,    20,    38,    63,    72,    20,    43,    63,
-      61,    52,    61,    57,    61,    52,    61,    12,    18,    11,
-      49,    50,    13,     7,    23,    24,    10,    20,    72,    10,
-      20,    48,    63,    71,    20,    55,    63,    65,    20,    62,
-      20,    53,    63,    64,    20,    66,    53,    20,    59,    63,
-      67,    69,    10,    52,    14,    10,     3,     5,     6,    73,
-       7,     7,    31,    10,    20,    71,    28,     9,    20,    65,
-      27,    30,     9,    20,    64,    29,     9,    32,    33,     9,
-      20,    67,    69,    43,    10,    20,     4,    25,    26,     7,
-       7,     7,     7,     7,     7,     7,    20,    69,     9,    22,
-       4,     4,     4,     3,     4,     3,    68,     3,    70,     7,
-      73
+       0,     8,    36,    37,    38,    42,    43,    12,    13,     0,
+       8,    36,    41,    47,    48,    53,    56,    58,    60,    41,
+      46,    20,    63,    63,    14,    15,    16,    17,    19,    41,
+      11,    40,    41,     8,    52,    62,    41,    41,    41,    41,
+      11,    45,    21,    20,    39,    65,    74,    20,    44,    65,
+      49,    63,    54,    63,    59,    63,    54,    63,    12,    18,
+      11,    51,    52,    13,     7,    23,    24,    10,    20,    74,
+      10,    20,    50,    65,    73,    20,    75,    20,    57,    65,
+      67,    20,    64,    20,    55,    65,    66,    20,    68,    55,
+      20,    61,    65,    69,    71,    10,    54,    14,    10,     3,
+       5,     6,    76,     7,     7,    31,    10,    20,    73,    34,
+      28,     9,    20,    67,    27,    30,     9,    20,    66,    29,
+       9,    32,    33,     9,    20,    69,    71,    44,    10,    20,
+       4,    25,    26,     7,     7,     7,     7,     7,     7,     7,
+       7,    20,    71,     9,    22,     4,     3,     4,     4,     3,
+       4,     3,    70,     3,    72,     7,    76
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    34,    35,    35,    36,    37,    38,    38,    38,    38,
-      39,    40,    40,    40,    40,    40,    40,    40,    40,    40,
-      40,    40,    40,    41,    42,    43,    43,    44,    45,    45,
-      46,    47,    48,    48,    48,    48,    49,    50,    50,    51,
-      52,    53,    53,    53,    53,    54,    55,    55,    55,    55,
-      56,    57,    58,    59,    59,    59,    59,    59,    59,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
-      70,    71,    72,    72,    73,    73,    73
+       0,    35,    36,    36,    37,    38,    39,    39,    39,    39,
+      40,    41,    41,    41,    41,    41,    41,    41,    41,    41,
+      41,    41,    41,    42,    43,    44,    44,    45,    46,    46,
+      47,    48,    49,    50,    50,    50,    50,    51,    52,    52,
+      53,    54,    55,    55,    55,    55,    56,    57,    57,    57,
+      57,    58,    59,    60,    61,    61,    61,    61,    61,    61,
+      61,    62,    63,    64,    65,    66,    67,    68,    69,    70,
+      71,    72,    73,    74,    74,    75,    76,    76,    76
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -783,11 +808,11 @@ static const yytype_int8 yyr2[] =
        0,     2,     1,     1,     3,     5,     2,     1,     1,     0,
        3,     2,     2,     2,     2,     2,     2,     1,     1,     1,
        1,     1,     1,     3,     5,     1,     0,     3,     1,     0,
-       3,     5,     2,     1,     1,     0,     3,     2,     1,     5,
-       2,     2,     1,     1,     0,     5,     2,     1,     1,     0,
-       5,     2,     5,     3,     2,     2,     1,     1,     1,     0,
-       5,     8,     4,     4,     4,     4,     4,     4,     1,     4,
-       1,     4,     4,     4,     1,     1,     1
+       3,     5,     2,     2,     1,     1,     0,     3,     2,     1,
+       5,     2,     2,     1,     1,     0,     5,     2,     1,     1,
+       0,     5,     2,     5,     3,     2,     2,     1,     1,     1,
+       0,     5,     8,     4,     4,     4,     4,     4,     4,     1,
+       4,     1,     4,     4,     4,     4,     1,     1,     1
 };
 
 
@@ -1520,16 +1545,40 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 68: /* max_value: "int"  */
-#line 160 "bisonFile.y"
+  case 31: /* RadioGroupStart: "<" RGROUP radiogroup_mand radiogroup_opt ">"  */
+#line 124 "bisonFile.y"
+                                                                                                                                                                        {rb_state=1;}
+#line 1552 "bisonFile.tab.c"
+    break;
+
+  case 37: /* RadioGroupEnd: "</" RGROUP ">"  */
+#line 133 "bisonFile.y"
+                                                                                                                                                                                { cmp_check(); check_number(); rb_state=0; rbs=1;}
+#line 1558 "bisonFile.tab.c"
+    break;
+
+  case 61: /* RadioButton: "<" RBUTTON button_mandatory_cont root_optional "/>"  */
+#line 168 "bisonFile.y"
+                                                                                                                                                {rbs++; }
+#line 1564 "bisonFile.tab.c"
+    break;
+
+  case 64: /* id_attribute: ANDROIDTAG ID "=" STRING  */
+#line 175 "bisonFile.y"
+                                                                                                                                                                                                {save_rb_id((yyvsp[0].string)); idUnique((yyvsp[0].string));}
+#line 1570 "bisonFile.tab.c"
+    break;
+
+  case 69: /* max_value: "int"  */
+#line 186 "bisonFile.y"
                                                                                                                 {
 															android_max_value = (yyvsp[0].integer);
 														}
-#line 1529 "bisonFile.tab.c"
+#line 1578 "bisonFile.tab.c"
     break;
 
-  case 69: /* progress_attribute: ANDROIDTAG PROGRESS "=" progress_value  */
-#line 165 "bisonFile.y"
+  case 70: /* progress_attribute: ANDROIDTAG PROGRESS "=" progress_value  */
+#line 191 "bisonFile.y"
                                                                                                                 {
 																if (android_process_value < 0 || android_process_value > android_max_value && android_max_value!=0) {
 																		fprintf(stderr, "Error: android:process value out of range %d\n",android_max_value );
@@ -1537,19 +1586,31 @@ yyreduce:
 																}
 
 														}
-#line 1541 "bisonFile.tab.c"
+#line 1590 "bisonFile.tab.c"
     break;
 
-  case 70: /* progress_value: "int"  */
-#line 174 "bisonFile.y"
+  case 71: /* progress_value: "int"  */
+#line 200 "bisonFile.y"
                                                                                                     {
 												        android_process_value = (yyvsp[0].integer);
 												    }
-#line 1549 "bisonFile.tab.c"
+#line 1598 "bisonFile.tab.c"
+    break;
+
+  case 72: /* checkedbutton_attribute: ANDROIDTAG CHECK_B "=" STRING  */
+#line 205 "bisonFile.y"
+                                                                                                                                                        {checked_value=(yyvsp[0].string); line[0]=yylineno;}
+#line 1604 "bisonFile.tab.c"
+    break;
+
+  case 75: /* numofButtons_attribute: ANDROIDTAG NUM_BUTTONS "=" "int"  */
+#line 210 "bisonFile.y"
+                                                                                                                                                                                { line[1]=yylineno; number_value=(yyvsp[0].integer);}
+#line 1610 "bisonFile.tab.c"
     break;
 
 
-#line 1553 "bisonFile.tab.c"
+#line 1614 "bisonFile.tab.c"
 
       default: break;
     }
@@ -1773,7 +1834,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 191 "bisonFile.y"
+#line 218 "bisonFile.y"
 
 /*void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
@@ -1789,7 +1850,82 @@ void yyerror(const char* err){
     }
 }
 
+/*Function to check if numberOfButtons attribute is equal to the actual number of RadioButtons inside a RadioGroup*/
+void check_number(){
+	int x=rbs-1;
+	if(x<number_value){
+		printf("\nThere should be %d RadioButtons, as declared by numberOfButtons attribute at line %d!",number_value,line[1]);
+		yyerror("There were less RadioButtons defined in this RadioGroup than what it was expected.");
+	}
+	else if(x>number_value){
+		printf("\nThere should be %d RadioButtons, as declared by numberOfButtons attribute at line %d!",number_value,line[1]);
+		yyerror("There were more RadioButtons defined in this RadioGroup than what it was expected.");
+	}
+}
+
+/*Compare if the value of checkedButton is equal to one of the radiobuttons ids*/
+void cmp_check(){
+	int x=0, y=0;
+	if(checked_value!=NULL){
+		for(int i=0;i<rbs-1;i++){
+			if(radio_button_id[i]!=NULL){
+				if(strcmp(checked_value,radio_button_id[i])==0){
+					x++;
+					//if x>0 one id matches the checkedButton attribute
+				}
+				y++;
+				//if y>0 at least one id attribute was not null
+			}
+		}
+		if(x==0 && y!=0){
+		//if there were no matches , but there was a not null id attribute
+			printf("\nNo match with checkedbutton attribute at line %d!",line[0]);
+			yyerror("Checked all android:id attributes of RadioButton elements.");
+		}
+	}
+}
+
+/*save the string ids of the radiobuttons declared*/
+void save_rb_id(char* id){
+	int i;
+	if(rb_state==0){
+		/*do nothing*/
+	}
+	else if(rb_state==1){
+		radio_button_id[rbs-1]=id;
+	}
+	else{
+		printf("some exception occured\n");
+	}
+	radio_button_id=(char**)realloc(radio_button_id,(rbs+1)*sizeof(char*));
+}
+
+//NEW CODE, BE CAREFUL
+
+void idUnique(char* id){
+	// Check for duplicate ID
+    for (int i = 0; i < unique_id_count; i++) {
+        if (strcmp(id, unique_ids[i]) == 0) {
+            fprintf(stderr, "\nError: Duplicate ID '%s' at line %d", id, yylineno);
+            yyerror("Duplicate ID attribute found.");
+            break;
+        }
+    }
+
+    // Resize the array if necessary
+    if (unique_id_count >= unique_ids_size) {
+        unique_ids_size += 10;  // Increase the size by 10
+        unique_ids = (char**)realloc(unique_ids, unique_ids_size * sizeof(char*));
+    }
+
+    // Add the unique ID to the array
+    unique_ids[unique_id_count++] = strdup(id);
+}
+
+//END OF NEW CODE
+
 int main(int argc, char* argv[]) {
+	radio_button_id=(char**)calloc(1,sizeof(char*));
 
     yyin = fopen(argv[1], "r");
 
