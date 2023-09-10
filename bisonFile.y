@@ -287,7 +287,7 @@ void idUnique(char* id){
 	// Check for duplicate ID
     for (int i = 0; i < unique_id_count; i++) {
         if (strcmp(id, unique_ids[i]) == 0) {
-            fprintf(stderr, "Error: Duplicate ID '%s' at line %d\n", id, yylineno);
+            fprintf(stderr, "\nError: Duplicate ID '%s' at line %d", id, yylineno);
             yyerror("Duplicate ID attribute found.");
             break;
         }
