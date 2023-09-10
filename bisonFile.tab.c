@@ -74,7 +74,7 @@
 #include <string.h>
 #include "bisonFile.tab.h"
 
-int android_process_value; // To store the android:process value
+int android_progress_value; // To store the android:progress value
 int android_max_value;    // To store the android:max value
 int errors=0;
 extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
@@ -1580,8 +1580,8 @@ yyreduce:
   case 70: /* progress_attribute: ANDROIDTAG PROGRESS "=" progress_value  */
 #line 191 "bisonFile.y"
                                                                                                                 {
-																if (android_process_value < 0 || android_process_value > android_max_value && android_max_value!=0) {
-																		fprintf(stderr, "Error: android:process value out of range %d\n",android_max_value );
+																if (android_progress_value < 0 || android_progress_value > android_max_value && android_max_value!=0) {
+																		fprintf(stderr, "Error: android:progress value out of range %d\n",android_max_value );
 																		exit(1);
 																}
 
@@ -1592,7 +1592,7 @@ yyreduce:
   case 71: /* progress_value: "int"  */
 #line 200 "bisonFile.y"
                                                                                                     {
-												        android_process_value = (yyvsp[0].integer);
+												        android_progress_value = (yyvsp[0].integer);
 												    }
 #line 1598 "bisonFile.tab.c"
     break;
@@ -1887,7 +1887,6 @@ void cmp_check(){
 
 /*save the string ids of the radiobuttons declared*/
 void save_rb_id(char* id){
-	int i;
 	if(rb_state==0){
 		/*do nothing*/
 	}

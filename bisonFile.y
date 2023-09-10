@@ -267,7 +267,6 @@ void cmp_check(){
 
 /*save the string ids of the radiobuttons declared*/
 void save_rb_id(char* id){
-	int i;
 	if(rb_state==0){
 		/*do nothing*/
 	}
