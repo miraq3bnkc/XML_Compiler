@@ -83,7 +83,6 @@ RootElement : 			LinearElement
 
 
 LinearElement : 		LinearStartTag elements LinearEndTag
-										|LinearStartTag elements LinearEndTag T_EOF {printf("End of file\n");}
 
 
 LinearStartTag : 		START_TAG LAYOUT_1 mandContent linear_optional ENDTAG
