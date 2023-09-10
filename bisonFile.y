@@ -4,7 +4,7 @@
 #include <string.h>
 #include "bisonFile.tab.h"
 
-int android_process_value; // To store the android:process value
+int android_progress_value; // To store the android:progress value
 int android_max_value;    // To store the android:max value
 int errors=0;
 extern FILE *yyin; 					//Το yyin είναι ειδική μεταβλητή του Flex.
@@ -189,8 +189,8 @@ max_value:									INT
 
 progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN progress_value
 														{
-																if (android_process_value < 0 || android_process_value > android_max_value && android_max_value!=0) {
-																		fprintf(stderr, "Error: android:process value out of range %d\n",android_max_value );
+																if (android_progress_value < 0 || android_progress_value > android_max_value && android_max_value!=0) {
+																		fprintf(stderr, "Error: android:progress value out of range %d\n",android_max_value );
 																		exit(1);
 																}
 
@@ -198,7 +198,7 @@ progress_attribute : 				ANDROIDTAG PROGRESS ASSIGN progress_value
 
 progress_value:						  INT
 												    {
-												        android_process_value = $1;
+												        android_progress_value = $1;
 												    }
 
 
